@@ -18,8 +18,44 @@ from django.contrib import admin
 from django.urls import path
 from movies import views
 
+from movies.views import MovieListView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', views.hello_world),
     path('filmy/', views.list_movies),  # NOWE
+    path('about/', MovieListView.as_view()),
+]
+
+
+from django.conf import settings
+from django.conf.urls.static import static
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+
+from movies.views import DirectorListView
+urlpatterns += [
+    path("rezyserzy/", DirectorListView.as_view()),
+]
+
+
+from movies.views import ReviewListView
+urlpatterns += [
+    path("recenzje/", ReviewListView.as_view()),
+]
+
+
+from movies.views import MovieDetailView, DirectorDetailView
+urlpatterns += [
+    path("film/<int:pk>/", MovieDetailView.as_view(), name="movie-detail"),
+    path("rezyser/<int:pk>/", DirectorDetailView.as_view(), name="director-detail"),
+]
+
+
+from movies.views import MovieListViewWithLinks, ReviewListViewWithLinks
+
+urlpatterns += [
+    path("movielinks/", MovieListViewWithLinks.as_view()),
+    path("reviewlinks/", ReviewListViewWithLinks.as_view()),
 ]
