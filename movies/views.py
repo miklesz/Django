@@ -28,11 +28,47 @@ def list_movies(request):
 
 from django.views.generic import ListView
 from .models import Movie
+
 class MovieListView(ListView):
     model = Movie
     template_name = "movie_list_v2.html"
 
     
+def profile_view(request):
+    return render(request, "profile.html")
+
+
+#8:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django.views.generic import ListView
+from .models import Movie
+
+class MovieListView(ListView):
+    model = Movie
+    template_name = "movie_list_v2.html"
+
+
+
+from django.views.generic import ListView
+from .models import Movie
+class MovieListView(ListView):
+    model = Movie
+    template_name = "movie_list_v2.html"
+
 from .models import Director
 class DirectorListView(ListView):
     model = Director
