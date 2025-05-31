@@ -37,7 +37,7 @@ class Director(models.Model):
         
     def __str__(self):
         return "Reżyser: " + self.first_name + " " + self.last_name
-    
+
 
 class Review(models.Model):
     movie = models.ForeignKey(to="movies.Movie", verbose_name="recenzja filmu", on_delete=models.CASCADE)
