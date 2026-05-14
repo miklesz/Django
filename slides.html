@@ -6,36 +6,41 @@
     <title>Slajdy</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
     <style>
       .reveal pre {
         position: relative;
-        padding-right: 2.2em;
+        padding-right: 0;
+      }
+
+      .reveal pre code {
+        padding-right: 2.4em;
       }
 
       .copy-code-button {
         position: absolute;
-        top: 0.38em;
-        right: 0.38em;
+        top: 0.45em;
+        right: 0.45em;
         width: 1.5em;
         height: 1.5em;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         padding: 0;
-        border: 1px solid rgba(0, 0, 0, 0.14);
+        border: 1px solid rgba(0, 0, 0, 0.22);
         border-radius: 0.32em;
-        background: rgba(255, 255, 255, 0.96);
-        color: #444;
+        background: rgba(32, 33, 36, 0.9);
+        color: #fff;
         font-size: 0.64em;
         line-height: 1;
         cursor: pointer;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-        opacity: 0.75;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+        opacity: 0.82;
       }
 
       .copy-code-button:hover {
         opacity: 1;
-        background: #fff;
+        background: rgba(32, 33, 36, 1);
       }
 
       .copy-code-button:focus-visible {
@@ -53,6 +58,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
     <script>
       const params = new URLSearchParams(window.location.search);
       const markdownFile = params.get('md');
@@ -118,7 +124,12 @@
         });
       }
 
-      Reveal.initialize({ plugins: [RevealMarkdown] }).then(() => {
+      Reveal.initialize({
+        plugins: [RevealMarkdown, RevealHighlight],
+        highlight: {
+          highlightOnLoad: true,
+        },
+      }).then(() => {
         attachCopyButtons();
         decorateLinks();
       });

@@ -11,11 +11,37 @@
 
 ---
 
+## Start każdych zajęć
+
+Na początku wracamy do katalogu kursowego z projektem (tam, gdzie jest `manage.py`).
+
+```bash
+cd moj_katalog_kursowy
+```
+
+---
+
+## Start każdych zajęć
+
+Aktywujemy środowisko wirtualne:
+
+```bash
+# macOS/Linux/WSL
+source .venv/bin/activate
+
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `python -m pip install Django`.
+
+---
+
 ## Tryb pracy na zajęciach
 
 - Terminal: uruchamianie komend Django
-- Edytor (PyCharm/VS Code): czytanie i edycja plików `*.py` z kolorowaniem składni
-- Awaryjnie: szybkie poprawki można zrobić w `nano`
+- Terminal + `nano`: domyślny tryb pracy na kursie
+- `cat`: szybki podgląd plików bez edycji
 
 ---
 
@@ -31,7 +57,7 @@ Każda z nich odpowiada za konkretną funkcjonalność i — przynajmniej w zał
 
 Stwórzmy więc pierwszą aplikację. Na potrzeby kursu będziemy tworzyć mini-bibliotekę zawierającą filmy.
 
-```sh
+```bash
 python manage.py startapp movies
 ```
 
@@ -43,13 +69,13 @@ Po utworzeniu aplikacji warto sprawdzić jej strukturę.
 
 UNIX:
 
-```sh
+```bash
 tree movies
 ```
 
 Windows:
 
-```sh
+```bash
 tree /F movies
 ```
 
@@ -79,7 +105,11 @@ To właśnie od `views.py` zaczniemy.
 
 ## Nasz pierwszy widok i automatyczne przeładowanie aplikacji
 
-Otwórzmy plik `movies/views.py` w edytorze.
+Otwórzmy plik `movies/views.py` w `nano`:
+
+```bash
+nano movies/views.py
+```
 
 Na początek posłużymy się prostą funkcją, która przyjmuje żądanie HTTP i zwraca prostą odpowiedź tekstową.
 
@@ -112,7 +142,6 @@ Cały plik `movies/views.py` może wyglądać tak:
 
 ```python
 from django.http import HttpResponse
-from django.shortcuts import render
 
 
 # Create your views here.
@@ -132,7 +161,11 @@ Jeśli wejdziemy na [http://127.0.0.1:8000/](http://127.0.0.1:8000/), nie zobacz
 
 ## Nasz pierwszy widok i automatyczne przeładowanie aplikacji
 
-Otwórzmy plik `goodmovies/settings.py` i odszukajmy listę `INSTALLED_APPS`.
+Otwórzmy plik `goodmovies/settings.py` i odszukajmy listę `INSTALLED_APPS`:
+
+```bash
+nano goodmovies/settings.py
+```
 
 Dopisujemy tam naszą aplikację:
 
@@ -155,6 +188,10 @@ INSTALLED_APPS = [
 Teraz trzeba jeszcze podpiąć widok pod konkretny adres URL.
 
 Otwórzmy `goodmovies/urls.py` i dopiszmy import oraz nową ścieżkę:
+
+```bash
+nano goodmovies/urls.py
+```
 
 ```python
 from django.contrib import admin
@@ -186,7 +223,7 @@ Jeśli serwer był uruchomiony podczas edycji plików, w terminalu mogliśmy zau
 
 Przykładowy komunikat wygląda mniej więcej tak:
 
-```sh
+```bash
 .../views.py changed, reloading.
 Performing system checks...
 Watching for file changes with StatReloader
@@ -213,6 +250,8 @@ Tym razem spróbujmy zwrócić odpowiedź HTML, czyli wyrenderować szablon.
 ## Nasz pierwszy „pełnoprawny” widok
 
 Wracamy do pliku `movies/views.py` i zmieniamy funkcję `hello_world`:
+
+Usuwamy też niepotrzebny już import `HttpResponse`.
 
 ```python
 from django.shortcuts import render
@@ -295,6 +334,12 @@ Po utworzeniu projektu w katalogu głównym pojawia się plik `db.sqlite3`.
 
 To właśnie nasza baza danych w formacie SQLite.
 
+Sprawdzić można komendą `tree` — wśród plików projektowych pojawi się `db.sqlite3`:
+
+```bash
+tree
+```
+
 Na potrzeby kursu zostajemy przy SQLite — jest proste w obsłudze i nie wymaga instalowania dodatkowego serwera baz danych.
 
 ---
@@ -303,7 +348,7 @@ Na potrzeby kursu zostajemy przy SQLite — jest proste w obsłudze i nie wymaga
 
 Podczas uruchamiania projektu mogliśmy zauważyć komunikat o niezaaplikowanych migracjach:
 
-```sh
+```bash
 System check identified no issues (0 silenced).
 
 You have ... unapplied migration(s). Your project may not work properly until you apply them.
@@ -324,7 +369,7 @@ Na przykład wbudowany model użytkownika Django powinien mieć odpowiednie tabe
 
 Żeby przygotować bazę danych, uruchamiamy migracje:
 
-```sh
+```bash
 python manage.py migrate
 ```
 
@@ -344,7 +389,7 @@ Aby zalogować się do panelu administracyjnego, potrzebujemy konta z odpowiedni
 
 Tworzymy je poleceniem:
 
-```sh
+```bash
 python manage.py createsuperuser
 ```
 
@@ -458,11 +503,21 @@ Dzięki temu dane ze słownika stają się dostępne w szablonie HTML.
 
 W `movies/templates/hello.html` możemy teraz dopisać:
 
+Najpierw zaraz edytujemy szablon:
+
+```bash
+nano movies/templates/hello.html
+```
+
+I dodajemy:
+
 ```django
 <p>
     Aktualny czas: {{ time }}
 </p>
 ```
+
+Następnie odświeżamy stronę w przeglądarce [http://127.0.0.1:8000/hello/](http://127.0.0.1:8000/hello/) — powinna się pojawić aktualna godzina i minuta.
 
 ---
 

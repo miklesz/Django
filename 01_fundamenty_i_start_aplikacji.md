@@ -1,6 +1,7 @@
 # 01 Fundamenty i start aplikacji
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
+* Start i tryb pracy
 * Czym jest Django?
 * Przygotowanie środowiska
   * Tworzenie środowiska wirtualnego
@@ -152,7 +153,7 @@ Na początku każdych kolejnych zajęć wracamy właśnie do tego katalogu.
 
 Przykład (ścieżka względna):
 
-```sh
+```bash
 cd moj_katalog_kursowy
 ```
 
@@ -164,7 +165,7 @@ Od tego miejsca wszystkie polecenia wykonujemy w tym samym katalogu kursowym.
 
 Sprawdźmy, czy mamy poprawnie zainstalowany język Python 3:
 
-```sh
+```bash
 # macOS/Linux/WSL
 python3 --version
 
@@ -182,7 +183,7 @@ Po aktywacji środowiska będziemy już używać po prostu `python`.
 
 Tworzymy lokalne środowisko `.venv`.
 
-```sh
+```bash
 # macOS/Linux/WSL
 python3 -m venv .venv
 
@@ -196,7 +197,7 @@ py -3 -m venv .venv
 
 ### Aktywacja środowiska wirtualnego
 
-```sh
+```bash
 # macOS/Linux/WSL
 source .venv/bin/activate
 
@@ -219,13 +220,13 @@ Dzięki temu pakiety z innych projektów nie mieszają się ze sobą.
 
 Na wstępie upewnijmy się, że mamy najnowszą wersję `pip`:
 
-```sh
+```bash
 python -m pip install --upgrade pip
 ```
 
 A teraz właściwa część — instalujemy framework Django:
 
-```sh
+```bash
 python -m pip install Django
 ```
 
@@ -235,13 +236,13 @@ python -m pip install Django
 
 Po wykonaniu powyższego polecenia możemy sprawdzić aktualnie zainstalowane pakiety poleceniem `pip list`. U mnie lista wygląda tak:
 
-```sh
+```bash
 python -m pip list
 ```
 
 Dobrą praktyką jest stworzenie pliku z listą zależności wymaganych do uruchomienia projektu. Najprostszą metodą jest wykonanie polecenia:
 
-```sh
+```bash
 python -m pip freeze > requirements.txt
 ```
 
@@ -253,7 +254,7 @@ Zapisze ono wszystkie biblioteki wraz z dokładnymi ich wersjami do pliku o nazw
 
 Zaglądnijmy do pliku `requirements.txt`:
 
-```sh
+```bash
 cat requirements.txt
 ```
 
@@ -265,7 +266,7 @@ Lista jest krótsza niż wynik `pip list` — nie ma tu `pip` ani `setuptools`, 
 
 Gdybyśmy chcieli odtworzyć projekt na innym komputerze, wystarczy:
 
-```sh
+```bash
 python -m pip install -r requirements.txt
 ```
 
@@ -281,7 +282,7 @@ Django zaopatruje nas w polecenie `django-admin`, które pozwala na tworzenie no
 
 Aby stworzyć nowy projekt wykonajmy polecenie (warto zauważyć kropkę na końcu, która wskazuje na aktualny katalog):
 
-```sh
+```bash
 python -m django startproject goodmovies .
 ```
 
@@ -294,18 +295,18 @@ Sprawdźmy nowy projekt przy pomocy `tree`.
 UNIX: `tree`, Windows: `tree /F`
 
 Instalacja (jeśli potrzebna) na macOS:
-```sh
+```bash
 brew install tree
 ```
 
 Instalacja (jeśli potrzebna) na (Debian/Ubuntu) Linux:
-```sh
+```bash
 sudo apt install tree
 ```
 
 Następnie sprawdzamy strukturę katalogu:
 
-```sh
+```bash
 tree
 ```
 
@@ -323,7 +324,7 @@ tree
 
 Uruchommy więc nasz projekt poleceniem:
 
-```sh
+```bash
 python manage.py runserver
 ```
 
@@ -345,13 +346,13 @@ Otwórzmy teraz plik `goodmovies/urls.py` z poziomu terminala.
 
 Najprościej:
 
-```sh
+```bash
 nano goodmovies/urls.py
 ```
 
 Podgląd bez edycji:
 
-```sh
+```bash
 cat goodmovies/urls.py
 ```
 
