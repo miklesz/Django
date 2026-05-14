@@ -341,7 +341,19 @@ Tym samym właśnie napisaliśmy `"Hello world"` w Django! Nasza aplikacja total
 
 Kiedy serwer otrzymuje żądanie (np. z naszej przeglądarki internetowej) przekazuje je do Django.
 
-Otwórzmy teraz w edytorze plik `goodmovies/urls.py`.
+Otwórzmy teraz plik `goodmovies/urls.py` z poziomu terminala.
+
+Najprościej:
+
+```sh
+nano goodmovies/urls.py
+```
+
+Podgląd bez edycji:
+
+```sh
+cat goodmovies/urls.py
+```
 
 ---
 
