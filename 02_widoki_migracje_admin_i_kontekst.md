@@ -2,13 +2,13 @@
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
 * Start i tryb pracy
+* URL Resolver
 * Nasza pierwsza aplikacja
 * Nasz pierwszy widok i automatyczne przeładowanie aplikacji
-* Nasz pierwszy „pełnoprawny” widok
+* Nasz pierwszy „pełnoprawny" widok
 * Bazy danych i migracja bazy danych
 * Tworzenie super-użytkownika
 * Panel administracyjny
-* Kontekst w szablonach HTML
 
 ---
 
@@ -43,7 +43,53 @@ Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `pyth
 - Terminal: uruchamianie komend Django
 - Terminal + `nano`: domyślny tryb pracy na kursie
 - `cat`: szybki podgląd plików bez edycji
-- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja będzie pokazana w lekcji 03
+- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja została omówiona w lekcji 01 (sekcja: _Zintegrowane Środowiska Programistyczne_)
+
+---
+
+## URL Resolver
+
+Kiedy serwer otrzymuje żądanie (np. z naszej przeglądarki internetowej) przekazuje je do Django.
+
+Otwórzmy teraz plik `goodmovies/urls.py` z poziomu terminala.
+
+Najprościej:
+
+```bash
+nano goodmovies/urls.py
+```
+
+Podgląd bez edycji:
+
+```bash
+cat goodmovies/urls.py
+```
+
+---
+
+## URL Resolver
+
+Django posiada coś, co nazywa się *url resolver* — to mechanizm rozpoznawania i rozwiązywania adresów URL.
+
+Prościej mówiąc: to lista adresów URL, które obsługuje aplikacja.
+
+---
+
+## URL Resolver
+
+Jeśli adres żądania pasuje do któregoś wpisu zadeklarowanego w aplikacji, Django przekazuje żądanie do odpowiedniej funkcji lub klasy, czyli do konkretnego **widoku**.
+
+---
+
+## URL Resolver
+
+To właśnie widoki są sercem logiki aplikacji w Django.
+
+Korzystają one z warstwy modelu powiązanej z bazą danych do zapisywania oraz odczytywania danych.
+
+Szablony HTML są następnie wypełniane danymi z widoku, a wyrenderowany HTML trafia z powrotem do przeglądarki.
+
+*Jest to opis znacznie uproszczony i prawdopodobnie dla większości niezrozumiały. Nic nie szkodzi. W najbliższym czasie poznamy co to wszystko oznacza w praktyce.*
 
 ---
 

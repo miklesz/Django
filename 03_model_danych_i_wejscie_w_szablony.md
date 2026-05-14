@@ -2,6 +2,7 @@
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
 * Start i tryb pracy
+* Kontekst w szablonach HTML
 * Django - Model danych
   * Po co nam baza danych?
   * "Klasyczne" zarządzanie bazami danych
@@ -12,6 +13,7 @@
   * Szablon bazowy dla naszej aplikacji
   * Prezentacja danych z bazy
 * Jak włączyć obsługę Django w PyCharm?
+  * (patrz opisanie w lekcji 01 — "Zintegrowane Środowiska Programistyczne")
 * Zadanie
 
 ---
@@ -355,21 +357,18 @@ Spróbujmy odświeżyć stronę [http://127.0.0.1:8000/hello/](http://127.0.0.1:
 
 ## Jak włączyć obsługę Django w PyCharm?
 
-To jest ścieżka alternatywna — nie wymagana do zajęć.
+**Uwaga:** Szczegółowa konfiguracja IDE (PyCharm, VSCode) oraz informacje o zaletach pracy z IDE znajdują się w lekcji 01 (_Zintegrowane Środowiska Programistyczne_).
+
+Poniżej krótkie podsumowanie dla szybkiego odniesienia:
 
 - Otwórz PyCharm i projekt
-- Wejdź do ustawień (`Cmd+,` lub `Ctrl+Alt+S`)
-- Wyszukaj `Django Support`
+- Ustawienia (`Cmd+,` na macOS / `Ctrl+Alt+S` na Windows/Linux)
+- Szukaj `Django Support` → wejdź do `Languages & Frameworks` → `Django`
 
----
-
-## Jak włączyć obsługę Django w PyCharm?
-
-Ustaw:
-
-- `Enable Django Support`
+Następnie ustaw:
+- `Enable Django Support` ✓
 - `Django project root`: katalog z `manage.py`
-- `Settings`: `goodmovies/settings.py`
+- `Settings module`: `goodmovies/settings.py`
 
 To daje lepsze podpowiedzi i nawigację po projekcie.
 

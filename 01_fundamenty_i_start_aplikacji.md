@@ -3,51 +3,40 @@
 
 * Start i tryb pracy
 * Czym jest Django?
+* Narzędzia pomocnicze i IDE
+  * Zintegrowane Środowiska Programistyczne (IDE)
 * Przygotowanie środowiska
   * Tworzenie środowiska wirtualnego
   * Instalowanie bibliotek/zależności
 * Nasz pierwszy projekt w Django
-* URL Resolver
 
 ---
 
-## Start każdych zajęć
+## Start lekcji 01 (jednorazowy setup)
 
-Na początku wracamy do katalogu kursowego z projektem (tam, gdzie jest `manage.py`).
+Na tych zajęciach dopiero zakładamy katalog kursowy i środowisko wirtualne, więc nie robimy jeszcze "rytuału startowego" z kolejnych lekcji.
 
-```bash
-cd moj_katalog_kursowy
-```
+W praktyce dzisiaj:
 
----
+- tworzymy stały katalog kursowy,
+- tworzymy i aktywujemy `venv`,
+- uruchamiamy pierwszy projekt Django.
 
-## Start każdych zajęć
-
-Aktywujemy środowisko wirtualne:
-
-```bash
-# macOS/Linux/WSL
-source .venv/bin/activate
-
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-```
-
-Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `python -m pip install Django`.
+Od lekcji 02 na początku wracamy do katalogu projektu i aktywujemy środowisko.
 
 ---
 
 ## Tryb pracy na zajęciach
 
-Pracujemy w modelu: **prezentacja + terminal**.
+Pracujemy w modelu: **prezentacja + terminal** lub **IDE**.
 
 - Prezentacja: plik HTML lekcji
 - Komendy: systemowy terminal
 - Domyślnie: terminal + `nano`
 - Szybki podgląd: `cat`
-- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja będzie pokazana w lekcji 03
+- **Alternatywnie: IDE (PyCharm/VS Code)** — konfiguracja opisana poniżej w sekcji _Zintegrowane Środowiska Programistyczne_
 
-Na tym etapie wszystkie ćwiczenia wykonujemy bezpośrednio z terminala.
+Na tym etapie wszystkie ćwiczenia można wykonywać zarówno z terminala jak i z IDE.
 
 ---
 
@@ -161,13 +150,73 @@ Praca z Django, podobnie jak z innymi frameworkami webowymi, korzysta z różnyc
 
 ## Narzędzia pomocnicze w pracy z Django
 
-- **IDEs (Zintegrowane środowisko programistyczne) jak PyCharm, VSCode**: Te narzędzia oferują zaawansowane funkcje, takie jak auto-uzupełnianie, debugowanie, i zarządzanie git, które znacznie przyspieszają i uprzyjemniają proces tworzenia aplikacji.
+- **IDEs (Zintegrowane środowisko programistyczne)**: Narzędzia takie jak PyCharm czy VSCode oferują zaawansowane funkcje (auto-uzupełnianie, debugowanie, zarządzanie git), które przyspieszają i uprzyjemniają pracę. Szczegółowa konfiguracja znajduje się w sekcji poniżej.
 
 ---
 
 ## Narzędzia pomocnicze w pracy z Django
 
 Znajomość tych narzędzi nie tylko pomoże w pracy z Django, ale jest też cenną umiejętnością w pracy programisty/programistki Pythona w ogóle. Każde z tych narzędzi może być przedmiotem osobnej sesji szkoleniowej, ale ich podstawowe zrozumienie jest już bardzo pomocne na starcie pracy z Django.
+
+---
+
+## Zintegrowane Środowiska Programistyczne (IDE)
+
+**IDE** (ang. _Integrated Development Environment_) to zaawansowane narzędzie, które łączy edytor kodu, debugger, zarządzanie plikami i wiele innych funkcji przydatnych do programowania. Zamiast używać osobnych narzędzi do każdego zadania, IDE oferuje wszystko w jednym miejscu.
+
+---
+
+## Zintegrowane Środowiska Programistyczne (IDE)
+
+Kiedy pracujesz z Djangiem i Pythonem, IDE może:
+
+- Automatycznie uzupełniać kod (auto-complete)
+- Ułatwiać nawigację po projekcie
+- Pokazywać błędy w kodzie na bieżąco
+- Integrować się z systemem kontroli wersji (git)
+- **Automatycznie wybierać i aktywować virtualne środowisko naszego projektu**
+
+---
+
+## Zintegrowane Środowiska Programistyczne (IDE) — PyCharm
+
+**PyCharm** (dostępne w wersji darmowej _Community_ i płatnej _Professional_) to IDE stworzone specjalnie dla Pythona. Jest szczególnie przydatne do pracy z Django.
+
+---
+
+## Zintegrowane Środowiska Programistyczne (IDE) — PyCharm
+
+Aby włączyć obsługę Django w PyCharm:
+
+1. Otwórz PyCharm i załaduj swój projekt
+2. Wejdź do ustawień (`Cmd+,` na macOS lub `Ctrl+Alt+S` na Windowsie/Linuksie)
+3. Wyszukaj `Django Support` lub przejdź do `Languages & Frameworks` → `Django`
+
+---
+
+## Zintegrowane Środowiska Programistyczne (IDE) — PyCharm
+
+Następnie ustaw:
+
+- `Enable Django Support` — zaznacz to pole
+- `Django project root` — wybierz katalog, w którym znajduje się `manage.py`
+- `Settings module` — wstaw `goodmovies/settings.py` (dostosuj do nazwy swojego projektu)
+
+Po włączeniu Django Support zyskujesz:
+- Lepsze podpowiedzi dla szablonów Django (`.html`)
+- Lepszą nawigację po modelach i widokach
+- Możliwość uruchamiania serwera Django bezpośrednio z IDE
+
+---
+
+## Zintegrowane Środowiska Programistyczne (IDE) — VSCode
+
+**VSCode** (Visual Studio Code) to lekki, darmowy edytor od Microsoftu. Może być używany do pracy z Django dzięki rozszerzeniom.
+
+Przydatne rozszerzenia VSCode:
+- **Python** — oficjalne rozszerzenie Microsoftu do Pythona
+- **Django** — wsparcie dla szablonów i składni Django
+- **Pylance** — zaawansowana analiza kodu Python
 
 ---
 
@@ -366,47 +415,5 @@ Tym samym właśnie napisaliśmy `"Hello world"` w Django! Nasza aplikacja total
 
 ---
 
-## URL Resolver
 
-Kiedy serwer otrzymuje żądanie (np. z naszej przeglądarki internetowej) przekazuje je do Django.
-
-Otwórzmy teraz plik `goodmovies/urls.py` z poziomu terminala.
-
-Najprościej:
-
-```bash
-nano goodmovies/urls.py
-```
-
-Podgląd bez edycji:
-
-```bash
-cat goodmovies/urls.py
-```
-
----
-
-## URL Resolver
-
-Django posiada coś, co nazywa się *url resolver* — to mechanizm rozpoznawania i rozwiązywania adresów URL.
-
-Prościej mówiąc: to lista adresów URL, które obsługuje aplikacja.
-
----
-
-## URL Resolver
-
-Jeśli adres żądania pasuje do któregoś wpisu zadeklarowanego w aplikacji, Django przekazuje żądanie do odpowiedniej funkcji lub klasy, czyli do konkretnego **widoku**.
-
----
-
-## URL Resolver
-
-To właśnie widoki są sercem logiki aplikacji w Django.
-
-Korzystają one z warstwy modelu powiązanej z bazą danych do zapisywania oraz odczytywania danych.
-
-Szablony HTML są następnie wypełniane danymi z widoku, a wyrenderowany HTML trafia z powrotem do przeglądarki.
-
-*Jest to opis znacznie uproszczony i prawdopodobnie dla większości niezrozumiały. Nic nie szkodzi. W najbliższym czasie poznamy co to wszystko oznacza w praktyce.*
 
