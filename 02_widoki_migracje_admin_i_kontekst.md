@@ -1,6 +1,7 @@
 # 02 Widoki, migracje, admin i kontekst
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
+* Start i tryb pracy
 * Nasza pierwsza aplikacja
 * Nasz pierwszy widok i automatyczne przeładowanie aplikacji
 * Nasz pierwszy „pełnoprawny” widok
@@ -42,6 +43,7 @@ Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `pyth
 - Terminal: uruchamianie komend Django
 - Terminal + `nano`: domyślny tryb pracy na kursie
 - `cat`: szybki podgląd plików bez edycji
+- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja będzie pokazana w lekcji 03
 
 ---
 

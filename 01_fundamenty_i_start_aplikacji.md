@@ -11,15 +11,43 @@
 
 ---
 
+## Start każdych zajęć
+
+Na początku wracamy do katalogu kursowego z projektem (tam, gdzie jest `manage.py`).
+
+```bash
+cd moj_katalog_kursowy
+```
+
+---
+
+## Start każdych zajęć
+
+Aktywujemy środowisko wirtualne:
+
+```bash
+# macOS/Linux/WSL
+source .venv/bin/activate
+
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `python -m pip install Django`.
+
+---
+
 ## Tryb pracy na zajęciach
 
 Pracujemy w modelu: **prezentacja + terminal**.
 
 - Prezentacja: plik HTML lekcji
 - Komendy: systemowy terminal
-- Kod: edycja plików projektu w IDE (PyCharm/VS Code)
+- Domyślnie: terminal + `nano`
+- Szybki podgląd: `cat`
+- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja będzie pokazana w lekcji 03
 
-W terminalu pokazujemy komendy, a pliki `*.py` najwygodniej czytać i edytować w edytorze z kolorowaniem składni.
+Na tym etapie wszystkie ćwiczenia wykonujemy bezpośrednio z terminala.
 
 ---
 
