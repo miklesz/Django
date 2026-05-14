@@ -1,9 +1,0 @@
-<h1>Recenzje</h1>
-
-<ul>
-{% for review in object_list %}
-    <li>
-        {{ review.author }}: {{ review.content }} (film: {{ review.movie.title }})
-    </li>
-{% endfor %}
-</ul>

@@ -1,7 +1,0 @@
-<h1>{{ object.last_name }}</h1>
-<p>Filmy tego reżysera:</p>
-<ul>
-{% for movie in object.movies.all %}
-    <li><a href="{% url 'movie-detail' movie.id %}">{{ movie.title }}</a></li>
-{% endfor %}
-</ul>

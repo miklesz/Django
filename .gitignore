@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+
+# Python cache/build
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+*/venv/
+*/.venv/
+
+# Local databases and runtime artifacts
+*.sqlite3
+*.log
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Local per-group working copies (not course source)
+grupa*/
+

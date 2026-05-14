@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slajdy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css" />
+    <style>
+      .reveal pre {
+        position: relative;
+        padding-right: 2.2em;
+      }
+
+      .copy-code-button {
+        position: absolute;
+        top: 0.38em;
+        right: 0.38em;
+        width: 1.5em;
+        height: 1.5em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        border-radius: 0.32em;
+        background: rgba(255, 255, 255, 0.96);
+        color: #444;
+        font-size: 0.64em;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        opacity: 0.75;
+      }
+
+      .copy-code-button:hover {
+        opacity: 1;
+        background: #fff;
+      }
+
+      .copy-code-button:focus-visible {
+        outline: 2px solid #4d90fe;
+        outline-offset: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section id="markdown-slide"></section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/markdown/markdown.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const markdownFile = params.get('md');
+      const title = params.get('title');
+      const section = document.getElementById('markdown-slide');
+
+      if (title) {
+        document.title = title;
+      }
+
+      if (markdownFile) {
+        section.setAttribute('data-markdown', markdownFile);
+      } else {
+        section.innerHTML = [
+          '<h2>Brak pliku Markdown</h2>',
+          '<p>Uruchom slajdy przez plik lekcji albo dodaj parametr <code>?md=plik.md</code>.</p>',
+        ].join('');
+      }
+
+      function attachCopyButtons() {
+        document.querySelectorAll('pre').forEach(pre => {
+          if (pre.querySelector('.copy-code-button')) {
+            return;
+          }
+
+          const code = pre.querySelector('code');
+          if (!code) {
+            return;
+          }
+
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'copy-code-button';
+          button.textContent = '⧉';
+          button.title = 'Kopiuj';
+
+          button.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(code.innerText);
+              button.textContent = '✓';
+              setTimeout(() => {
+                button.textContent = '⧉';
+              }, 1200);
+            } catch (error) {
+              button.textContent = '!';
+              setTimeout(() => {
+                button.textContent = '⧉';
+              }, 1200);
+            }
+          });
+
+          pre.appendChild(button);
+        });
+      }
+
+      function decorateLinks() {
+        document.querySelectorAll('.slides a[href]').forEach(link => {
+          const href = link.getAttribute('href') || '';
+          if (/^https?:\/\//i.test(href)) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+          }
+        });
+      }
+
+      Reveal.initialize({ plugins: [RevealMarkdown] }).then(() => {
+        attachCopyButtons();
+        decorateLinks();
+      });
+    </script>
+  </body>
+</html>
+
