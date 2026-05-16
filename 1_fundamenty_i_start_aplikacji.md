@@ -1,4 +1,4 @@
-# 01 Fundamenty i start aplikacji
+# 1 Fundamenty i start aplikacji
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
 * Start i wymagania wstępne
@@ -10,7 +10,7 @@
 
 ---
 
-## Start lekcji 01 (jednorazowy setup)
+## Start lekcji 1 (jednorazowy setup)
 
 Na tych zajęciach dopiero zakładamy katalog kursowy i środowisko wirtualne, więc nie robimy jeszcze "rytuału startowego" z kolejnych lekcji.
 
@@ -20,7 +20,7 @@ W praktyce dzisiaj:
 - tworzymy i aktywujemy `venv`,
 - uruchamiamy pierwszy projekt Django.
 
-Od lekcji 02 na początku wracamy do katalogu projektu i aktywujemy środowisko.
+Od lekcji 2 na początku wracamy do katalogu projektu i aktywujemy środowisko.
 
 ---
 

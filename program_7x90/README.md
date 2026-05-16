@@ -3,7 +3,7 @@
 Nowy podzial oryginalnego materialu na 7 cwiczen o zblizonej objetosci.
 
 ## Co tu jest
-- `01`-`07`: nowe notebooki nazwane zgodnie z zawartoscia.
+- `1`-`7`: nowe notebooki nazwane zgodnie z zawartoscia.
 - `MAPOWANIE_7x90.md`: dokladna mapa zakresow i liczby komorek.
 
 ## Zasady podzialu

@@ -1,4 +1,4 @@
-# 02 Widoki, migracje, admin i kontekst
+# 2 Widoki, migracje, admin i kontekst
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
 * Start i tryb pracy
@@ -38,12 +38,12 @@ Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `pyth
 
 ---
 
-## Tryb pracy na zajęciach
+- Tryb pracy na zajęciach
 
 - Terminal: uruchamianie komend Django
 - Terminal + `nano`: domyślny tryb pracy na kursie
 - `cat`: szybki podgląd plików bez edycji
-- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja została omówiona w lekcji 01 (sekcja: _Zintegrowane Środowiska Programistyczne_)
+- Alternatywnie: IDE (PyCharm/VS Code), konfiguracja została omówiona w lekcji 1 (sekcja: _Zintegrowane Środowiska Programistyczne_)
 
 ---
 
