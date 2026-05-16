@@ -1,13 +1,11 @@
 # 01 Fundamenty i start aplikacji
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
-* Start i tryb pracy
+* Start i wymagania wstępne
 * Czym jest Django?
+* Architektura Django: MVC vs. MVT
 * Narzędzia pomocnicze i IDE
-  * Zintegrowane Środowiska Programistyczne (IDE)
 * Przygotowanie środowiska
-  * Tworzenie środowiska wirtualnego
-  * Instalowanie bibliotek/zależności
 * Nasz pierwszy projekt w Django
 
 ---
@@ -23,6 +21,61 @@ W praktyce dzisiaj:
 - uruchamiamy pierwszy projekt Django.
 
 Od lekcji 02 na początku wracamy do katalogu projektu i aktywujemy środowisko.
+
+---
+
+## Wymagania na start: co musimy mieć przed pierwszą komendą
+
+Zanim przejdziemy do Django, potrzebujemy trzech rzeczy:
+
+- działającego terminala,
+- zainstalowanego Python 3,
+- na Windowsie opcjonalnie: WSL jako wygodnego środowiska Linux.
+
+To są jednorazowe przygotowania, które później mocno upraszczają pracę.
+
+---
+
+## Terminal: jak uruchomić
+
+- **macOS**: `Cmd + Spacja` i wpisz `Terminal`
+- **Linux**: uruchom `Terminal` z menu aplikacji
+- **Windows**: `Windows Terminal` lub `PowerShell`
+
+W dalszej części lekcji wszystkie polecenia wpisujemy właśnie w terminalu.
+
+---
+
+## Python 3: instalacja i szybka weryfikacja
+
+Jeżeli Python 3 nie jest dostępny, instalujemy go:
+
+- **macOS**: `brew install python`
+- **Ubuntu/Debian**: `sudo apt install python3 python3-venv python3-pip`
+- **Windows**: instalator z [python.org](https://www.python.org/downloads/) (zaznacz `Add python.exe to PATH`)
+
+Po instalacji sprawdzamy wersję:
+
+```bash
+# macOS/Linux/WSL
+python3 --version
+
+# Windows PowerShell
+py -3 --version
+```
+
+---
+
+## WSL na Windows (opcjonalnie, ale polecane)
+
+Jeżeli pracujesz na Windowsie i chcesz mieć środowisko zgodne z Linuxem:
+
+1. Otwórz PowerShell jako Administrator
+2. Wykonaj `wsl --install`
+3. Zrestartuj komputer
+4. Po restarcie dokończ konfigurację Ubuntu i ustaw użytkownika
+
+WSL jest fallbackiem, jeśli natrafisz na różnice między poleceniami windowsowymi i unixowymi.
 
 ---
 
@@ -86,7 +139,11 @@ Gdy tworzymy strony internetowe, wiele elementów się powtarza między projekta
 
 ## Architektura Django: MVC vs. MVT
 
-**MVC** (pol. _Model-Widok-Kontroler_) - popularny [wzorzec architektoniczny](https://pl.wikipedia.org/wiki/Wzorzec_architektoniczny) służący do organizowania struktury aplikacji posiadających [graficzne interfejsy użytkownika](https://pl.wikipedia.org/wiki/Graficzny_interfejs_użytkownika).
+Jeżeli te skróty widzisz pierwszy raz, to spokojnie:
+
+- **MVC** i **MVT** to nazwy sposobu organizacji kodu,
+- ich cel jest prosty: oddzielić **dane**, **logikę** i **widok HTML**,
+- dzięki temu projekt łatwiej rozwijać i poprawiać.
 
 ---
 
@@ -94,27 +151,38 @@ Gdy tworzymy strony internetowe, wiele elementów się powtarza między projekta
 
 ![](https://upload.wikimedia.org/wikipedia/commons/1/19/Mvc-diagram.png)
 
----
-
-## Architektura Django: MVC vs. MVT
-
-Django używa wzorca architektonicznego znanego jako MVT, który jest adaptacją wzorca MVC. Różnica pomiędzy tymi dwoma podejściami może wydawać się subtelna, ale ma istotne znaczenie w sposobie, w jaki Django organizuje pracę z kodem.
-
-- **Model**: W obu wzorcach, model to warstwa odpowiedzialna za strukturę danych, ich walidację oraz operacje (dodawanie, modyfikacja, usuwanie itp.). W Django, modeli używa się do definicji struktury bazy danych oraz do interakcji z danymi.
+To jest ogólny schemat MVC, który często zobaczysz w materiałach.
 
 ---
 
 ## Architektura Django: MVC vs. MVT
 
-- **View/Controller**: W MVC, kontroler odpowiada za odbieranie żądań od użytkownika, a widok za prezentowanie danych użytkownikowi. W Django, te dwie funkcje są połączone w jedną warstwę "View", która zarządza logiką biznesową, przetwarzając żądania i zwracając odpowiednie odpowiedzi.
+Najpierw w 2 zdaniach o **MVC**:
 
-- **Template**: W Django, szablony odpowiadają za prezentację danych, podobnie jak widoki w MVC. Szablony w Django otrzymują kontekst, czyli dane, które mają być wyświetlone, i renderują je zgodnie z określoną strukturą, zwykle HTML z wplecionymi tagami szablonu Django.
+- **Model**: dane i reguły pracy na danych,
+- **View**: to, co użytkownik widzi,
+- **Controller**: przyjmuje żądanie i decyduje, co zrobić dalej.
 
 ---
 
 ## Architektura Django: MVC vs. MVT
 
-Porównanie MVT do MVC ułatwia zrozumienie, jak Django radzi sobie z separacją obowiązków w aplikacji, jednocześnie promując czystą strukturę projektu i ułatwiając rozwój.
+W Django nazwy są trochę inne (**MVT**):
+
+- **Model (MVT)** = **Model (MVC)**,
+- **View (MVT)** działa jak **Controller**,
+- **Template (MVT)** to warstwa HTML (czyli „widok” dla użytkownika).
+
+---
+
+## Architektura Django: MVC vs. MVT
+
+Jak to działa w praktyce przy jednym wejściu na stronę:
+
+1. Przeglądarka wysyła request,
+2. Django `view` uruchamia logikę,
+3. `view` pobiera dane z `model`,
+4. `template` składa HTML i Django odsyła odpowiedź.
 
 ---
 
@@ -178,13 +246,13 @@ Kiedy pracujesz z Djangiem i Pythonem, IDE może:
 
 ---
 
-## Zintegrowane Środowiska Programistyczne (IDE) — PyCharm
+## PyCharm
 
 **PyCharm** (dostępne w wersji darmowej _Community_ i płatnej _Professional_) to IDE stworzone specjalnie dla Pythona. Jest szczególnie przydatne do pracy z Django.
 
 ---
 
-## Zintegrowane Środowiska Programistyczne (IDE) — PyCharm
+## PyCharm
 
 Aby włączyć obsługę Django w PyCharm:
 
@@ -194,7 +262,15 @@ Aby włączyć obsługę Django w PyCharm:
 
 ---
 
-## Zintegrowane Środowiska Programistyczne (IDE) — PyCharm
+## PyCharm
+
+`Django Support`:
+
+![](https://intellij-support.jetbrains.com/hc/user_images/eVSRccUymV1BCrO57Gjd-w.png)
+
+---
+
+## PyCharm
 
 Następnie ustaw:
 
@@ -412,8 +488,3 @@ Przejdźmy zatem do przeglądarki jak proponuje wiadomość w terminalu. Adres t
 ## Nasz pierwszy projekt w Django
 
 Tym samym właśnie napisaliśmy `"Hello world"` w Django! Nasza aplikacja totalnie nic nie robi, ale czy na pewno? Jeśli ujrzeliście taki widok w przeglądarce, to oznacza, że instalacja zakończyła się pomyślnie i możemy nareszcie przejść do tworzenia aplikacji.
-
----
-
-
-
