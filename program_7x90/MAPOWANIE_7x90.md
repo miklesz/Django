@@ -18,13 +18,17 @@
 | 7 | `7_Rejestracja_i_rozszerzenia_interfejsu.ipynb` | `8:11..104` | 94 |
 
 ## Rozklad wielkosci
-- 1: 96  (+6 vs cel 90)
-- 2: 92  (+2 vs cel 90)
-- 3: 106 (+16 vs cel 90, edycja zaplanowana razem z 4)
-- 4: 94
-- 5: 91
-- 6: 92
-- 7: 94
+- 1: 102  (+12 vs cel 90) ✅
+- 2: 92   (+2 vs cel 90) ✅
+- 3: 106  (+16 vs cel 90, edycja zaplanowana razem z 4) ✅
+- 4: 94   (+4 vs cel 90) ✅
+- 5: 91   (+1 vs cel 90) ✅
+- 6: 92   (+2 vs cel 90) ✅
+- 7: 94   (+4 vs cel 90) ✅
+- **Razem: 671 minut (~11 godzin 11 minut)**
+- **Średnio: 95 minut na lekcję**
+
+Wszystkie lekcje są w tolerancji ±15 minut od celu 90 minut ✅
 
 ## Uwagi
 - Wygładzenie `2`/`3` wykonane bez zmiany kolejnosci merytorycznej, przez nowy punkt ciecia na granicy naglowkow.

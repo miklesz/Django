@@ -203,7 +203,13 @@ def hello_world(request):
 
 To jednak jeszcze nie wystarczy.
 
-Jeśli wejdziemy na [http://127.0.0.1:8000/](http://127.0.0.1:8000/), nie zobaczymy naszego napisu, bo aplikacja `movies` nie została jeszcze dołączona do projektu.
+Żeby sprawdzić aplikację w przeglądarce, serwer deweloperski musi być uruchomiony:
+
+```bash
+python manage.py runserver
+```
+
+Jeśli po uruchomieniu serwera wejdziemy na [http://127.0.0.1:8000/](http://127.0.0.1:8000/), nie zobaczymy naszego napisu, bo aplikacja `movies` nie została jeszcze dołączona do projektu.
 
 ---
 
@@ -329,6 +335,13 @@ Musimy teraz utworzyć szablon `hello.html`.
 
 W aplikacji `movies` tworzymy katalog `templates/`, a w nim plik `hello.html`.
 
+W terminalu możemy zrobić to tak:
+
+```bash
+mkdir -p movies/templates
+nano movies/templates/hello.html
+```
+
 Końcowa ścieżka powinna wyglądać tak:
 
 ```text
@@ -344,6 +357,21 @@ W pliku `movies/templates/hello.html` wpiszmy na przykład:
 ```html
 <h1>Witaj świecie</h1>
 ```
+
+---
+
+## Nasz pierwszy „pełnoprawny” widok
+
+Po utworzeniu nowego katalogu `templates/` warto wyjątkowo zrestartować serwer deweloperski.
+
+W terminalu z działającym serwerem:
+
+```bash
+Ctrl+C
+python manage.py runserver
+```
+
+Django zwykle samo przeładowuje aplikację po zmianach w kodzie Pythona, ale nowy katalog z szablonami może wymagać ręcznego restartu serwera.
 
 ---
 
@@ -574,4 +602,3 @@ Następnie odświeżamy stronę w przeglądarce [http://127.0.0.1:8000/hello/](h
 To właśnie przez kontekst przekazujemy informacje z backendu do frontendu.
 
 Później będą to na przykład dane odczytane z bazy: filmy, recenzje, reżyserzy i inne obiekty naszej aplikacji.
-
