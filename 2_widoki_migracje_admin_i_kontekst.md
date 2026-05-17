@@ -5,10 +5,11 @@
 * URL Resolver
 * Nasza pierwsza aplikacja
 * Nasz pierwszy widok i automatyczne przeładowanie aplikacji
-* Nasz pierwszy „pełnoprawny" widok
+* Nasz pierwszy „pełnoprawny” widok
 * Bazy danych i migracja bazy danych
 * Tworzenie super-użytkownika
 * Panel administracyjny
+* Kontekst w szablonach HTML
 
 ---
 
@@ -38,7 +39,7 @@ Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `pyth
 
 ---
 
-- Tryb pracy na zajęciach
+## Tryb pracy na zajęciach
 
 - Terminal: uruchamianie komend Django
 - Terminal + `nano`: domyślny tryb pracy na kursie
@@ -115,17 +116,19 @@ python manage.py startapp movies
 
 Po utworzeniu aplikacji warto sprawdzić jej strukturę.
 
-UNIX:
+macOS/Linux/WSL:
 
 ```bash
-tree movies
+tree
 ```
 
 Windows:
 
 ```bash
-tree /F movies
+tree /F
 ```
+
+W wyniku komendy szukamy przede wszystkim fragmentu dotyczącego katalogu `movies/`.
 
 ---
 
@@ -209,7 +212,48 @@ To jednak jeszcze nie wystarczy.
 python manage.py runserver
 ```
 
-Jeśli po uruchomieniu serwera wejdziemy na [http://127.0.0.1:8000/](http://127.0.0.1:8000/), nie zobaczymy naszego napisu, bo aplikacja `movies` nie została jeszcze dołączona do projektu.
+---
+
+## Nasz pierwszy widok i automatyczne przeładowanie aplikacji
+
+Terminal z uruchomionym serwerem zostawiamy otwarty — ta komenda działa cały czas.
+
+Do kolejnych komend otwieramy nową zakładkę terminala.
+
+---
+
+## Nasz pierwszy widok i automatyczne przeładowanie aplikacji
+
+W nowej zakładce terminala wracamy do katalogu projektu i aktywujemy środowisko:
+
+```bash
+cd moj_katalog_kursowy
+pwd
+ls
+source .venv/bin/activate
+```
+
+Wynik `ls` powinien pokazywać między innymi plik `manage.py`.
+
+---
+
+## Nasz pierwszy widok i automatyczne przeładowanie aplikacji
+
+Na Windowsie w PowerShellu aktywacja wygląda tak:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Po aktywacji również sprawdzamy, czy jesteśmy w katalogu z `manage.py`.
+
+---
+
+## Nasz pierwszy widok i automatyczne przeładowanie aplikacji
+
+Jeśli po uruchomieniu serwera wejdziemy na [http://127.0.0.1:8000/](http://127.0.0.1:8000/), nie zobaczymy naszego napisu.
+
+Widok `hello_world` istnieje już w pliku, ale nie ma jeszcze własnego adresu URL, a aplikację `movies` dopiero dopiszemy do projektu.
 
 ---
 
@@ -335,22 +379,46 @@ Musimy teraz utworzyć szablon `hello.html`.
 
 W aplikacji `movies` tworzymy katalog `templates/`, a w nim plik `hello.html`.
 
-W terminalu możemy zrobić to tak:
+Najpierw sprawdźmy obecną strukturę projektu:
+
+```bash
+tree
+```
+
+W wyniku komendy patrzymy na fragment `movies/`. Katalogu `movies/templates/` jeszcze tam nie ma.
+
+---
+
+## Nasz pierwszy „pełnoprawny” widok
+
+Tworzymy katalog na szablony:
 
 ```bash
 mkdir -p movies/templates
-nano movies/templates/hello.html
 ```
 
-Końcowa ścieżka powinna wyglądać tak:
+I ponownie sprawdzamy strukturę:
+
+```bash
+tree
+```
+
+Teraz powinniśmy zobaczyć katalog:
 
 ```text
-movies/templates/hello.html
+movies/
+`-- templates/
 ```
 
 ---
 
 ## Nasz pierwszy „pełnoprawny” widok
+
+Otwieramy nowy plik:
+
+```bash
+nano movies/templates/hello.html
+```
 
 W pliku `movies/templates/hello.html` wpiszmy na przykład:
 
@@ -364,14 +432,15 @@ W pliku `movies/templates/hello.html` wpiszmy na przykład:
 
 Po utworzeniu nowego katalogu `templates/` warto wyjątkowo zrestartować serwer deweloperski.
 
-W terminalu z działającym serwerem:
+W terminalu z działającym serwerem naciskamy `Ctrl+C`, a potem uruchamiamy serwer ponownie:
 
 ```bash
-Ctrl+C
 python manage.py runserver
 ```
 
 Django zwykle samo przeładowuje aplikację po zmianach w kodzie Pythona, ale nowy katalog z szablonami może wymagać ręcznego restartu serwera.
+
+Do dalszych komend nadal używamy drugiej zakładki terminala z aktywnym środowiskiem.
 
 ---
 
@@ -406,17 +475,11 @@ DATABASES = {
 
 ## Bazy danych i migracja bazy danych
 
-Po utworzeniu projektu w katalogu głównym pojawia się plik `db.sqlite3`.
+Na potrzeby kursu zostajemy przy SQLite.
 
-To właśnie nasza baza danych w formacie SQLite.
+To prosta baza danych zapisywana w pojedynczym pliku i nie wymaga instalowania dodatkowego serwera baz danych.
 
-Sprawdzić można komendą `tree` — wśród plików projektowych pojawi się `db.sqlite3`:
-
-```bash
-tree
-```
-
-Na potrzeby kursu zostajemy przy SQLite — jest proste w obsłudze i nie wymaga instalowania dodatkowego serwera baz danych.
+Po wykonaniu migracji w katalogu projektu pojawi się plik `db.sqlite3`.
 
 ---
 
@@ -454,6 +517,12 @@ python manage.py migrate
 ## Bazy danych i migracja bazy danych
 
 Po wykonaniu migracji Django utworzy potrzebne tabele, między innymi na użytkowników, sesje i uprawnienia.
+
+W katalogu projektu powinien być teraz widoczny plik `db.sqlite3`:
+
+```bash
+tree
+```
 
 Od tej chwili projekt jest gotowy do pracy z panelem administracyjnym.
 
@@ -512,6 +581,10 @@ Na razie zalogujmy się, rozejrzyjmy po interfejsie i na końcu się wylogujmy.
 Wróćmy do przykładu z `hello.html`.
 
 Gdybyśmy chcieli wyświetlić informację o aktualnie zalogowanym użytkowniku, możemy w szablonie użyć zmiennej dostępnej domyślnie w kontekście:
+
+```bash
+nano movies/templates/hello.html
+```
 
 ```django
 <p>
@@ -578,8 +651,6 @@ Dzięki temu dane ze słownika stają się dostępne w szablonie HTML.
 ## Kontekst w szablonach HTML
 
 W `movies/templates/hello.html` możemy teraz dopisać:
-
-Najpierw zaraz edytujemy szablon:
 
 ```bash
 nano movies/templates/hello.html
