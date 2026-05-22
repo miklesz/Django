@@ -1,8 +1,11 @@
 # 3 Model danych i wejście w szablony
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
+---
+
+## Plan
+
 * Start i tryb pracy
-* Kontekst w szablonach HTML
 * Django - Model danych
   * Po co nam baza danych?
   * "Klasyczne" zarządzanie bazami danych
@@ -12,8 +15,6 @@
 * Django - Prezentacja danych
   * Szablon bazowy dla naszej aplikacji
   * Prezentacja danych z bazy
-* Jak włączyć obsługę Django w PyCharm?
-   * (patrz opisanie w lekcji 1 — "Zintegrowane Środowiska Programistyczne")
 * Zadanie
 
 ---
@@ -187,13 +188,31 @@ Aby przechowywać dane w bazie danych:
 
 ---
 
-## Przeglądanie bazy danych przy pomocy DB Browser
+## Podgląd tabel SQLite
 
-Do podglądu pliku SQLite można użyć narzędzia DB Browser:
+Nie musimy instalować osobnego programu do oglądania pliku `db.sqlite3`.
 
-[https://sqlitebrowser.org/](https://sqlitebrowser.org/)
+Jeśli chcemy zobaczyć surowe tabele w pliku SQLite, możemy użyć modułu `sqlite3` dostarczanego z Pythonem:
 
-To opcjonalne narzędzie pomocnicze do podejrzenia tabel i rekordów.
+```bash
+python -m sqlite3 db.sqlite3 "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+```
+
+Po migracji powinniśmy zobaczyć między innymi tabelę `movies_movie`.
+
+---
+
+## Podgląd rekordów SQLite
+
+Możemy też odpytać tabelę z filmami:
+
+```bash
+python -m sqlite3 db.sqlite3 "SELECT id, title, premiere_date FROM movies_movie;"
+```
+
+Na tym etapie wynik może być pusty, bo utworzyliśmy tabelę, ale nie dodaliśmy jeszcze żadnych filmów.
+
+Pusty wynik nie oznacza błędu. Oznacza tylko, że tabela nie ma jeszcze rekordów.
 
 ---
 
@@ -225,27 +244,37 @@ admin.site.register(Movie)
 
 ---
 
-## Dalsze kroki
+## Dane testowe do dalszej pracy
 
-### Polecenie do uruchomienia
+Uruchamiamy serwer i przechodzimy do panelu administratora:
 
 ```bash
 python manage.py runserver
 ```
 
-Uruchamiamy serwer i przechodzimy do panelu:
-
 [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
-Warto dodać kilka filmów, żeby mieć dane do dalszej pracy.
+Dodajmy kilka filmów, żeby mieć dane do dalszej pracy. Wystarczą 2-3 rekordy z tytułem, krótkim opisem i datą premiery.
+
+---
+
+## Podgląd danych przez Django
+
+Po dodaniu filmów możemy sprawdzić dane bezpośrednio z terminala:
+
+```bash
+python manage.py shell -c "from movies.models import Movie; print(list(Movie.objects.values('id', 'title', 'description', 'premiere_date')))"
+```
+
+Django może najpierw wypisać komunikat typu `13 objects imported automatically`. Interesuje nas ostatnia linia z listą filmów.
+
+Jeśli nadal widzimy `[]`, to znaczy, że w tej bazie nie ma jeszcze żadnych filmów albo dodaliśmy je w innym katalogu projektu.
 
 ---
 
 ## Dodatkowe materiały
 
-Spis pól modeli Django:
-
-[https://docs.djangoproject.com/en/5.1/ref/models/fields/#field-types](https://docs.djangoproject.com/en/5.1/ref/models/fields/#field-types)
+[Spis pól modeli Django](https://docs.djangoproject.com/en/stable/ref/models/fields/#field-types)
 
 ---
 
@@ -270,7 +299,6 @@ Django daje na to mechanizm dziedziczenia szablonów (`{% extends %}`, `{% block
 Tworzymy plik bazowy:
 
 ```bash
-touch movies/templates/base.html
 nano movies/templates/base.html
 ```
 
@@ -298,19 +326,12 @@ Początkowa zawartość `base.html`:
 
 ## Szablony HTML w Django - szablon bazowy dla naszej aplikacji
 
-Teraz `hello.html` może rozszerzać `base.html`:
+Mamy już gotowy szablon bazowy.
 
-```bash
-nano movies/templates/hello.html
-```
+Za chwilę przebudujemy `hello.html` tak, żeby jednocześnie:
 
-```django
-{% extends "base.html" %}
-
-{% block content %}
-  <p>To jest zawartość strony hello.</p>
-{% endblock %}
-```
+- korzystał z `base.html`,
+- wyświetlał dane pobrane z bazy.
 
 ---
 
@@ -337,7 +358,13 @@ def hello_world(request):
 
 ## Prezentacja danych z bazy
 
-W szablonie wyświetlamy listę filmów:
+Teraz przebudowujemy szablon `hello.html`:
+
+```bash
+nano movies/templates/hello.html
+```
+
+Zastępujemy całą dotychczasową zawartość pliku wersją, która korzysta z `base.html` i wyświetla listę filmów:
 
 ```django
 {% extends "base.html" %}
@@ -355,25 +382,6 @@ Spróbujmy odświeżyć stronę [http://127.0.0.1:8000/hello/](http://127.0.0.1:
 
 ---
 
-## Jak włączyć obsługę Django w PyCharm?
-
-**Uwaga:** Szczegółowa konfiguracja IDE (PyCharm, VSCode) oraz informacje o zaletach pracy z IDE znajdują się w lekcji 1 (_Zintegrowane Środowiska Programistyczne_).
-
-Poniżej krótkie podsumowanie dla szybkiego odniesienia:
-
-- Otwórz PyCharm i projekt
-- Ustawienia (`Cmd+,` na macOS / `Ctrl+Alt+S` na Windows/Linux)
-- Szukaj `Django Support` → wejdź do `Languages & Frameworks` → `Django`
-
-Następnie ustaw:
-- `Enable Django Support` ✓
-- `Django project root`: katalog z `manage.py`
-- `Settings module`: `goodmovies/settings.py`
-
-To daje lepsze podpowiedzi i nawigację po projekcie.
-
----
-
 ## Zadanie
 
 Sprawdź, czy użytkownik jest uwierzytelniony.
@@ -381,3 +389,20 @@ Sprawdź, czy użytkownik jest uwierzytelniony.
 Można wykorzystać informacje o użytkowniku z obiektu `request` i wypisać je w szablonie.
 
 Przykładowo użyj `{{ request.user }}` lub `{{ request.user.is_authenticated }}` i sprawdź wynik przed oraz po zalogowaniu.
+
+---
+
+## Rozwiązanie
+
+W `movies/templates/hello.html`, wewnątrz bloku `{% block content %}`, można dopisać:
+
+```django
+<p>
+  Użytkownik: {{ request.user }}
+</p>
+<p>
+  Czy zalogowany: {{ request.user.is_authenticated }}
+</p>
+```
+
+Przed zalogowaniem zobaczymy zwykle `AnonymousUser` i `False`. Po zalogowaniu przez panel admina zobaczymy nazwę użytkownika i `True`.

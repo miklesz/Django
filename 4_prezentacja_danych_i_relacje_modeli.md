@@ -1,9 +1,13 @@
 # 4 Prezentacja danych i relacje modeli
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
-* Prezentacja danych
+* Start i tryb pracy
+* Widok listy filmów
 * Relacyjne bazy danych
-* Ulepszamy modele
+* Model reżysera i relacja z filmem
+* Migracje i panel administracyjny
+* Konfiguracja plików media
+* Zadania opcjonalne
 
 ---
 
@@ -29,228 +33,254 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `python -m pip install Django`.
+Po aktywacji używamy już poleceń typu `python manage.py runserver`.
+
+---
+
+## Punkt startowy
+
+Po ćwiczeniu 3 mamy:
+
+- model `Movie` z polami `title`, `description`, `premiere_date`,
+- kilka filmów dodanych w panelu administratora,
+- szablon bazowy `base.html`,
+- stronę `/hello/`, która potrafi wyświetlić dane z bazy.
+
+Na tych zajęciach zrobimy osobną listę filmów i dodamy relację filmu z reżyserem.
 
 ---
 
 ## Widok listy filmów
 
-Udajmy się do [`movies/views.py`](http://localhost:8888/edit/movies/views.py) aby utworzyć widok listy filmów.
+Otwieramy plik `movies/views.py`:
 
-Na dobry początek trzeba zaimportować model (mądre IDE jak PyCharm lub VSCode same to zaproponują/zrobią).
-Następnie piszemy kolejną funkcję, która przyjmuje zapytanie (`request`) jako argument.
+```bash
+nano movies/views.py
+```
+
+Dodajemy osobny widok listy filmów. Jeśli import `Movie` już istnieje po ćwiczeniu 3, nie dodajemy go drugi raz.
 
 ```python
-from movies.models import Movie  # NOWE
+from django.shortcuts import render
+
+from .models import Movie
+
+
+def hello_world(request):
+    movies = Movie.objects.all()
+    return render(request, "hello.html", {"movies": movies})
+
 
 def list_movies(request):
     movies = Movie.objects.all()
-    return render(
-        request, 
-        template_name="movie_list.html", 
-        context={"movies": movies}
-    )  # NOWE
+    return render(request, "movie_list.html", {"movies": movies})
 ```
-
-W tym miejscu wiele się dzieje! Zacznijmy od góry:
-
-* dzięki zaimportowaniu modelu `Movie` będziemy mogli wejść w interakcje z bazą danych za pośrednictwem Django, czyli między innymi:
-  * dodawać nowe obiekty typu `Movie`
-  * edytować i usuwać istniejące obiekty `Movie`
-  * odczytywać a także filtrować istniejące obiekty `Movie`
-
-* `objects` - każdy model w Django ma coś co się nazywa [manager](https://docs.djangoproject.com/en/stable/topics/db/managers/), nie będziemy wchodzić tutaj w szczegóły, ale jest to interfejs przez który dostarczane są nam operacje na bazie danych. W praktyce, umożliwia to nam tworzenie, edycję, usuwanie i inne zapytania do bazy danych.
-
-* `Movie.objects.all()` użyje menedżera obiektów typu `Movie` i zapyta bazę danych o WSZYSTKIE filmy. Dostaniemy więc listę całej zawartości naszej filmoteki.
-
-* Do wygenerowania odpowiedzi aplikacji zostanie użyty szablon `movie_list.html` (tak, musimy go teraz stworzyć!)
-
-* Lista filmów zostanie dodana do kontekstu HTML
 
 ---
 
-## Rejestracja podstrony listy filmów
+## Rejestracja adresu `/filmy/`
 
-Aby widok mógł być wyświetlony trzeba mu przydzielić jakiś adres. Udajmy się więc do [`urls.py`](http://localhost:8888/edit/goodmovies/urls.py) czyli o URL resolvera naszego projektu. Tutaj należy dodać `path()`, który będzie kierował zapytania przeglądarek użytkowników z konkretnego adresu na stronę powstającej listy filmów.
+Otwieramy `goodmovies/urls.py`:
 
-Przykładowo, do listy `urlpatterns` dodajmy linijkę:
+```bash
+nano goodmovies/urls.py
+```
+
+Do `urlpatterns` dodajemy nową ścieżkę:
 
 ```python
+from django.contrib import admin
+from django.urls import path
+
+from movies import views
+
 urlpatterns = [
-    ...
-    
-    # http://127.0.0.1:8000/filmy/
-    path('filmy/', views.list_movies),  # NOWE
+    path("admin/", admin.site.urls),
+    path("hello/", views.hello_world),
+    path("filmy/", views.list_movies),
 ]
 ```
 
-Teraz link [http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/) powinien nas kierować do listy filmów, którą przed chwilą napisaliśmy w [`views.py`](http://localhost:8888/edit/movies/views.py). Został jeszcze jeden element - szablon HTML, który wyświetli dane.
-
 ---
 
-## Szablon HTML listy
+## Szablon listy filmów
 
-Stwórzmy plik o nazwie [`movie_list.html`](http://localhost:8888/edit/movies/templates/movie_list.html) (oczywiście musi być umieszczony w katalogu szablonów naszej aplikacji [`movies/templates/`](movies/templates/)).
+Tworzymy plik `movies/templates/movie_list.html`:
 
-
-```python
-!touch movies/templates/movie_list.html
+```bash
+nano movies/templates/movie_list.html
 ```
 
-Na początek możemy sprawdzić, czy wszystko dobrze zaprogramowaliśmy. Spróbujmy więc wypisać zmienną `movies`, którą dodaliśmy do kontekstu szablonu.
+Na początek możemy sprawdzić, czy dane dochodzą do szablonu:
 
 ```django
 {{ movies }}
 ```
 
-Jeśli w przeglądarce pojawiła się lista obiektów z tajemniczym `QuerySet`, to jesteśmy na dobrej drodze.
-
-Aby wypisać elementy list prostą pętlą można posłużyć się tagiem Django
-
-`{% for %}`.
-
-```django
-{% for movie in movies %}
-<p>
-    Film: "{{ movie }}"
-</p>
-{% endfor %}
-```
-
-Powyższy kawałek kodu prze-iteruje po liście, którą dostarczyliśmy z widoku. Następnie dla każdego elementu wstawi HTML zawarty w środku, czyli w naszym przypadku akapit z napisem `Film: "{{ movie }}"`.
+Po wejściu na [http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/) powinniśmy zobaczyć `QuerySet` z filmami.
 
 ---
 
-## Dalsze prace
+## Pętla w szablonie
 
-1. Wypisz osobno każde z pól modelu filmu np.: tytuł (`movie.title`), datę publikacji (`movie.published_at`)
-2. Wykorzystaj HTML (np.: `<b></b>`, `<i></i>`) i CSS (np.: `<style>p {color: green;}</style>`) do poprawienia wyglądu listy
-3. Przebuduj szablon `movie_list.html` tak aby wykorzystywał (rozszerzał) szablon bazowy `base.html` (np.: `{% extends "base.html" %}{% block content %}{% endblock %}`)
-4. Dodaj widok szczegółów pierwszego, pojedynczego filmu (np.: `Movie.objects.all()[0]`)
+Teraz zamieniamy techniczny widok `QuerySet` na czytelną listę.
+
+```django
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Filmy</h2>
+
+  <ul>
+    {% for movie in movies %}
+      <li>
+        <strong>{{ movie.title }}</strong>
+
+        {% if movie.premiere_date %}
+          <br>Premiera: {{ movie.premiere_date }}
+        {% endif %}
+
+        {% if movie.description %}
+          <p>{{ movie.description }}</p>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Brak filmów w bazie.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+```
 
 ---
 
 ## Relacyjne bazy danych
 
-Do tej pory nasza aplikacja posiadała dość prosty i ubogi model danych. Była to tylko pojedyncza tabela przechowująca filmy (`class Movie(models.Model)` w pliku [`movies/models.py`](http://localhost:8888/edit/movies/models.py)).
+Do tej pory nasza aplikacja miała jeden własny model danych: `Movie`.
 
-Pora na utworzenie oddzielnego modelu na reżyserów i recenzje oraz rozszerzenie istniejącego modelu filmów o dodatkowe pola.
-
----
-
-## Problem z polem reżysera w obecnym modelu
-
-Wróćmy do pliku z naszymi modelami, [`movies/models.py`](http://localhost:8888/edit/movies/models.py). Gdybyśmy umieścili pole na reżysera:
+Każdy film może mieć reżysera. Moglibyśmy dodać do filmu zwykłe pole tekstowe:
 
 ```python
-class Movie(models.Model):
-    ...
-    director = models.CharField(null=True, max_length=128)
+director = models.CharField(max_length=128, blank=True)
 ```
 
-To napotkamy następujące problemy:
-
-- Jeśli mamy kilka filmów tego samego reżysera, to informacje o nim się powtarzają w wielu wpisach (redundancja danych)
-- Jest większa szansa popełnienia błędu i powstania różnych zapisów tego samego imienia/nazwiska
-- Przy aktualizacji informacji o reżyserze trzeba zaktualizować wszystkie filmy
+To działa tylko pozornie dobrze.
 
 ---
 
-## Relacje i klucz obcy
+## Problem ze zwykłym polem tekstowym
 
-Jedną z podstawowych zalet baz danych, które używamy (SQLite, PostgreSQL i innych), jest możliwość tworzenia relacji między modelami.
+Jeśli wpisujemy reżysera jako tekst:
 
-Rozwiązaniem jest wydzielenie osobnej tabeli na dane o reżyserach. W ten sposób będziemy mieli:
-- Filmy w jednej tabeli
-- Reżyserów w drugiej
+- przy kilku filmach tej samej osoby powtarzamy te same dane,
+- łatwo zrobić literówki lub różne zapisy tego samego nazwiska,
+- zmiana informacji o reżyserze wymaga poprawienia wielu filmów.
 
-Bazy relacyjne pozwalają zdefiniować specjalne pole (klucz obcy), w którym będzie przechowywany identyfikator wiersza z innej tabeli.
-
-Każdy model w Django ma automatycznie pole `id` — **klucz główny**, który jednoznacznie identyfikuje jeden wiersz.
+Lepsze rozwiązanie to osobny model `Director` i relacja z modelem `Movie`.
 
 ---
 
-## Graficzna reprezentacja modelu danych
+## Klucz obcy
 
-Aby było łatwiej zrozumieć co z czym się łączy, tworzy się modele danych np. przy pomocy UML (Unified Modeling Language).
+W relacyjnej bazie danych możemy połączyć dwie tabele.
 
-Poniższy diagram UML przedstawia aplikację [źródło: MDN]:
+W naszym przypadku:
 
-![](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Django/Models/local_library_model_uml.svg)
+- tabela filmów przechowuje filmy,
+- tabela reżyserów przechowuje reżyserów,
+- film ma pole wskazujące na konkretny rekord z tabeli reżyserów.
 
----
-
-## Ulepszamy nasze modele
-
-Stwórzmy osobny model na reżysera i wykorzystajmy mechanizmy baz relacyjnych do stworzenia powiązań z filmami.
+Takie pole nazywa się kluczem obcym, czyli `ForeignKey`.
 
 ---
 
 ## Model reżysera
 
-W pliku [`movies/models.py`](http://localhost:8888/edit/movies/models.py) dodajmy model reżysera:
+Otwieramy `movies/models.py`:
+
+```bash
+nano movies/models.py
+```
+
+Nad modelem `Movie` dodajemy model `Director`:
 
 ```python
 class Director(models.Model):
     first_name = models.CharField(verbose_name="imię", max_length=100)
     last_name = models.CharField(verbose_name="nazwisko", max_length=100)
     about = models.TextField(verbose_name="o reżyserze", blank=True)
-    photo = models.ImageField(verbose_name="zdjęcie", blank=True)
-    
+    photo = models.ImageField(
+        verbose_name="zdjęcie",
+        upload_to="directors/",
+        blank=True,
+    )
+
     class Meta:
         ordering = ["last_name", "first_name"]
         verbose_name = "reżyser"
         verbose_name_plural = "reżyserzy"
-        
+
     def __str__(self):
         return self.first_name + " " + self.last_name
 ```
 
 ---
 
-## Pole ImageField
+## Co robi `ImageField`
 
-Model zawiera pole na imię, nazwisko, opis oraz zdjęcie (obraz graficzny).
+`ImageField` nie zapisuje obrazu bezpośrednio w bazie danych.
 
-Django pozwala nam tworzyć pola, które przechowują ścieżkę do pliku. Rzadko kiedy przechowuje się pliki wgrane przez użytkowników w bazie danych — Django domyślnie w polu `ImageField` przechowuje tylko informacje o nazwie pliku.
+W bazie zapisuje się ścieżka do pliku, a sam plik trafia do katalogu z mediami.
 
----
-
-## Etykieta `verbose_name`
-
-`verbose_name` to domyślna etykieta wyświetlana w panelu administratora.
-
-Dzięki temu zabiegowi, zamiast angielskich nazw zmiennych zobaczymy polskie etykiety.
+Do obsługi obrazów Django potrzebuje biblioteki Pillow. Jeśli jej nie ma, przy sprawdzaniu projektu zobaczymy błąd `fields.E210`.
 
 ---
 
-## Meta-dane modelu (`class Meta`)
+## Pillow
 
-Tutaj definiuje się meta-dane dotyczące modelu:
-- `ordering`: domyślne sortowanie elementów
-- `verbose_name`, `verbose_name_plural`: nazwy wyświetlane w panelu admin
+Instalujemy Pillow:
 
-Sortowanie po nazwisku/imieniu jest dla nas (ludzi) naturalne i jest szczególnie ważne przy widokach z paginacją.
+```bash
+python -m pip install Pillow
+```
+
+Jeśli prowadzimy projekt z plikiem `requirements.txt`, dopisujemy tam zależność:
+
+```text
+Pillow
+```
+
+Można też odświeżyć cały plik wymagań:
+
+```bash
+python -m pip freeze > requirements.txt
+```
 
 ---
 
-## Poprawki w modelu filmów
+## Relacja filmu z reżyserem
 
-Skoro już wzbogacamy nasz model o etykiety, dodajmy je również do modelu filmu:
+W tym samym pliku `movies/models.py` aktualizujemy model `Movie`.
+
+Zostawiamy pola z ćwiczenia 3: `title`, `description`, `premiere_date`.
+
+Dodajemy etykiety oraz pole `director`:
 
 ```python
 class Movie(models.Model):
-    title = models.CharField(verbose_name="tytuł", max_length=100)
-    short_description = models.TextField(verbose_name="opis")
-    published_at = models.DateField(verbose_name="data premiery")
-
-    # Klucz obcy do reżysera
+    title = models.CharField(verbose_name="tytuł", max_length=200)
+    description = models.TextField(verbose_name="opis", blank=True)
+    premiere_date = models.DateField(
+        verbose_name="data premiery",
+        null=True,
+        blank=True,
+    )
     director = models.ForeignKey(
         to="movies.Director",
         verbose_name="reżyser",
         related_name="movies",
         on_delete=models.CASCADE,
-        null=True
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -262,4 +292,258 @@ class Movie(models.Model):
         return self.title
 ```
 
-Pole `director` to teraz klucz obcy (`ForeignKey`), który łączy film z reżyserem.
+---
+
+## Dlaczego `null=True` i `blank=True`
+
+Mamy już filmy dodane w bazie po ćwiczeniu 3.
+
+Nie mają jeszcze przypisanych reżyserów, więc nowe pole `director` musi na razie dopuszczać pustą wartość.
+
+- `null=True` pozwala zapisać pustą wartość w bazie danych.
+- `blank=True` pozwala zostawić pole puste w formularzu panelu administratora.
+
+Dzięki temu migracja nie zatrzyma się pytaniem o wartość domyślną.
+
+---
+
+## Pełny plik modeli
+
+Po zmianach `movies/models.py` powinien wyglądać podobnie do tego:
+
+```python
+from django.db import models
+
+
+class Director(models.Model):
+    first_name = models.CharField(verbose_name="imię", max_length=100)
+    last_name = models.CharField(verbose_name="nazwisko", max_length=100)
+    about = models.TextField(verbose_name="o reżyserze", blank=True)
+    photo = models.ImageField(
+        verbose_name="zdjęcie",
+        upload_to="directors/",
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ["last_name", "first_name"]
+        verbose_name = "reżyser"
+        verbose_name_plural = "reżyserzy"
+
+    def __str__(self):
+        return self.first_name + " " + self.last_name
+
+
+class Movie(models.Model):
+    title = models.CharField(verbose_name="tytuł", max_length=200)
+    description = models.TextField(verbose_name="opis", blank=True)
+    premiere_date = models.DateField(
+        verbose_name="data premiery",
+        null=True,
+        blank=True,
+    )
+    director = models.ForeignKey(
+        to="movies.Director",
+        verbose_name="reżyser",
+        related_name="movies",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ["title"]
+        verbose_name = "film"
+        verbose_name_plural = "filmy"
+
+    def __str__(self):
+        return self.title
+```
+
+---
+
+## Tworzymy migrację
+
+Najpierw możemy podejrzeć plan migracji:
+
+```bash
+python manage.py makemigrations --dry-run --verbosity 3
+```
+
+Jeśli nie ma błędu, generujemy migrację:
+
+```bash
+python manage.py makemigrations
+```
+
+---
+
+## Aplikujemy migrację
+
+Aktualizujemy bazę danych:
+
+```bash
+python manage.py migrate
+```
+
+Po tym kroku w bazie istnieje tabela reżyserów, a tabela filmów ma nowe pole z relacją do reżysera.
+
+---
+
+## Konfiguracja plików media
+
+Na końcu `goodmovies/settings.py` dodajemy:
+
+```python
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+```
+
+To mówi Django, pod jakim adresem i w jakim katalogu obsługiwać pliki wgrywane przez użytkowników.
+
+---
+
+## Udostępnianie media w trybie deweloperskim
+
+W `goodmovies/urls.py` dopisujemy importy:
+
+```python
+from django.conf import settings
+from django.conf.urls.static import static
+```
+
+Na końcu pliku dodajemy:
+
+```python
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+To rozwiązanie jest przeznaczone do pracy lokalnej przy `DEBUG = True`.
+
+---
+
+## Rejestracja reżyserów w adminie
+
+Otwieramy `movies/admin.py`:
+
+```bash
+nano movies/admin.py
+```
+
+Rejestrujemy oba modele:
+
+```python
+from django.contrib import admin
+
+from .models import Director, Movie
+
+admin.site.register(Director)
+admin.site.register(Movie)
+```
+
+Jeśli `Movie` był już zarejestrowany po ćwiczeniu 3, dodajemy tylko import `Director` i linię `admin.site.register(Director)`.
+
+---
+
+## Kontrola w panelu admin
+
+Uruchamiamy serwer:
+
+```bash
+python manage.py runserver
+```
+
+Wchodzimy do panelu:
+
+[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+
+Powinna pojawić się sekcja reżyserów. Dodajemy 1-2 reżyserów, a potem edytujemy istniejące filmy i przypisujemy im reżysera.
+
+---
+
+## Reżyser na liście filmów
+
+Możemy teraz uzupełnić `movie_list.html` o reżysera:
+
+```django
+{% if movie.director %}
+  <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
+{% endif %}
+```
+
+Ten fragment wkładamy wewnątrz pętli `{% for movie in movies %}`.
+
+---
+
+## Zadania opcjonalne
+
+1. W szablonie `movie_list.html` wyświetl osobno tytuł, opis, datę premiery i reżysera każdego filmu.
+2. Popraw wygląd listy prostym HTML-em i CSS-em.
+3. Dodaj widok szczegółów pierwszego filmu pod adresem `/pierwszy-film/`.
+4. W panelu admin dodaj zdjęcie reżysera i sprawdź, czy plik pojawia się w katalogu `media/`.
+
+---
+
+## Rozwiązania
+
+Zadanie 1, przykład wnętrza pętli:
+
+```django
+<li>
+  <strong>{{ movie.title }}</strong>
+  {% if movie.premiere_date %}
+    <br>Premiera: {{ movie.premiere_date }}
+  {% endif %}
+  {% if movie.director %}
+    <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
+  {% endif %}
+  {% if movie.description %}
+    <p>{{ movie.description }}</p>
+  {% endif %}
+</li>
+```
+
+Zadanie 2, prosty CSS w `base.html`:
+
+```html
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; }
+  li { margin-bottom: 1rem; }
+</style>
+```
+
+---
+
+## Rozwiązania
+
+Zadanie 3, widok w `movies/views.py`:
+
+```python
+def first_movie(request):
+    movie = Movie.objects.first()
+    return render(request, "first_movie.html", {"movie": movie})
+```
+
+Adres w `goodmovies/urls.py`:
+
+```python
+path("pierwszy-film/", views.first_movie),
+```
+
+Szablon `movies/templates/first_movie.html`:
+
+```django
+{% extends "base.html" %}
+
+{% block content %}
+  {% if movie %}
+    <h2>{{ movie.title }}</h2>
+    <p>{{ movie.description }}</p>
+  {% else %}
+    <p>Brak filmów w bazie.</p>
+  {% endif %}
+{% endblock %}
+```
+
+Zadanie 4: po zapisaniu zdjęcia w adminie plik powinien trafić do `media/directors/`.
