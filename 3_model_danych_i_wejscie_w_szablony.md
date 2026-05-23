@@ -243,6 +243,16 @@ Pełna lista pól jest w dokumentacji Django:
 
 ---
 
+## Drobne elementy modelu
+
+`blank=True` pozwala zostawić pole puste w formularzu.
+
+`null=True` pozwala zapisać brak wartości w bazie danych.
+
+`__str__` mówi Django, jak pokazać obiekt jako tekst.
+
+---
+
 ## Podgląd migracji
 
 Jeśli chcemy najpierw podejrzeć, co Django wygeneruje, możemy uruchomić:

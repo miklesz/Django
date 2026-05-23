@@ -78,6 +78,17 @@ def list_movies(request):
 
 ---
 
+## Dlaczego podobny kod?
+
+Na razie `hello_world` i `list_movies` robią prawie to samo: pobierają filmy z bazy i przekazują je do szablonu.
+
+Różnica jest w roli tych widoków:
+
+- `/hello/` zostaje stroną ćwiczeniową z poprzednich zajęć,
+- `/filmy/` będzie właściwą listą filmów, którą od teraz rozwijamy.
+
+---
+
 ## Rejestracja adresu `/filmy/`
 
 Otwieramy `goodmovies/urls.py`:
@@ -123,7 +134,13 @@ Po wejściu na [http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/) powi
 
 ## Pętla w szablonie
 
-Teraz zamieniamy techniczny widok `QuerySet` na czytelną listę.
+Wracamy do tego samego pliku:
+
+```bash
+nano movies/templates/movie_list.html
+```
+
+Zastępujemy testowe `{{ movies }}` pełnym szablonem.
 
 ```django
 {% extends "base.html" %}
@@ -150,6 +167,34 @@ Teraz zamieniamy techniczny widok `QuerySet` na czytelną listę.
   </ul>
 {% endblock %}
 ```
+
+Za chwilę rozłożymy najważniejsze linie tego szablonu.
+
+---
+
+## Co robi ten szablon?
+
+`{% extends "base.html" %}` używa wspólnego układu strony.
+
+`{% block content %}` wskazuje miejsce na treść tej strony.
+
+`{% for movie in movies %}` przechodzi po filmach z widoku.
+
+`{{ movie.title }}` i podobne zapisy pobierają pola filmu.
+
+`{% if ... %}` ukrywa puste informacje, a `{% empty %}` obsługuje pustą listę.
+
+---
+
+## Sprawdzenie listy filmów
+
+Odświeżamy stronę:
+
+[http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/)
+
+Powinniśmy zobaczyć czytelną listę filmów zamiast technicznego `QuerySet`.
+
+Jeśli widzimy komunikat o braku filmów, sprawdzamy, czy filmy zostały dodane w panelu admina.
 
 ---
 
@@ -225,6 +270,22 @@ class Director(models.Model):
 
 ---
 
+## Co nowego w modelu `Director`?
+
+`ImageField` pozwala wskazać plik obrazu.
+
+`upload_to="directors/"` mówi, do którego podkatalogu trafią zdjęcia.
+
+`verbose_name` ustawia czytelne nazwy pól w formularzach i panelu admina.
+
+Pola, np. `first_name`, zapisują dane reżysera.
+
+`class Meta` nie zapisuje danych. Ustawia np. sortowanie i nazwy w panelu admina.
+
+`ordering` określa domyślne sortowanie reżyserów.
+
+---
+
 ## Co robi `ImageField`
 
 `ImageField` nie zapisuje obrazu bezpośrednio w bazie danych.
@@ -253,6 +314,12 @@ Można też odświeżyć cały plik wymagań:
 
 ```bash
 python -m pip freeze > requirements.txt
+```
+
+Sprawdzamy, czy w pliku pojawiło się `Pillow`:
+
+```bash
+cat requirements.txt
 ```
 
 ---
