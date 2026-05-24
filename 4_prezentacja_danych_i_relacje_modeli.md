@@ -125,6 +125,12 @@ Na początek możemy sprawdzić, czy dane dochodzą do szablonu:
 {{ movies }}
 ```
 
+Jeśli serwer nie działa, uruchamiamy go:
+
+```bash
+python manage.py runserver
+```
+
 Po wejściu na [http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/) powinniśmy zobaczyć `QuerySet` z filmami.
 
 ---
@@ -179,7 +185,9 @@ Za chwilę rozłożymy najważniejsze linie tego szablonu.
 
 `{{ movie.title }}` i podobne zapisy pobierają pola filmu.
 
-`{% if ... %}` ukrywa puste informacje, a `{% empty %}` obsługuje pustą listę.
+`{% if ... %}` ukrywa puste informacje.
+
+`{% empty %}` wykona się, gdy `for` nie ma żadnego filmu do pokazania.
 
 ---
 
@@ -233,6 +241,8 @@ W naszym przypadku:
 
 Takie pole nazywa się kluczem obcym, czyli `ForeignKey`.
 
+Na kolejnym slajdzie pokażemy tę relację jako prosty diagram.
+
 ---
 
 ## Diagram relacji
@@ -285,7 +295,7 @@ Na kolejnych slajdach wyjaśnimy nowe elementy tego modelu.
 
 ## Co nowego w modelu `Director`?
 
-`ImageField` pozwala wskazać plik obrazu.
+`ImageField` pozwala wskazać plik obrazu; za chwilę wyjaśnimy to dokładniej.
 
 `upload_to="directors/"` mówi, do którego podkatalogu trafią zdjęcia.
 
@@ -359,6 +369,18 @@ Dopisujemy pole `director` wewnątrz obecnej klasy.
 ```
 
 Na kolejnym slajdzie zobaczymy, jak wygląda cała klasa `Movie` po tej zmianie.
+
+---
+
+## Co tu się zmienia?
+
+Pola `title`, `description` i `premiere_date` są z ćwiczenia 3.
+
+Przy tych polach dopisujemy teraz `verbose_name`, czyli polskie etykiety dla formularzy.
+
+Nowe pole to `director`.
+
+Nowe ustawienia klasy to `Meta`: sortowanie i nazwy modelu w panelu admina.
 
 ---
 
@@ -529,6 +551,8 @@ Otwieramy `goodmovies/urls.py`:
 ```bash
 nano goodmovies/urls.py
 ```
+
+Zrobimy w nim dwie edycje: importy na górze i dopisek pod `urlpatterns`.
 
 Na górze pliku dopisujemy:
 
