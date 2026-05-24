@@ -1,16 +1,18 @@
-# 7 Rejestracja i rozszerzenia interfejsu
+# 7 Użytkownicy aplikacji
 *[Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl), [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)*
 
-* Start każdych zajęć
-* System rejestracji użytkowników
-* Formularze
-* Szablony autoryzacji
+* Start i punkt wyjścia
+* Wbudowane widoki logowania Django
+* Profil zalogowanego użytkownika
+* Rejestracja przez `UserCreationForm`
+* Wylogowanie i nawigacja użytkownika
+* Ochrona widoków
 
 ---
 
 ## Start każdych zajęć
 
-Na początku wracamy do katalogu kursowego z projektem (tam, gdzie jest `manage.py`).
+Wracamy do katalogu kursowego z projektem, tam gdzie jest `manage.py`.
 
 ```bash
 cd moj_katalog_kursowy
@@ -30,75 +32,144 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `python -m pip install Django`.
+Po aktywacji używamy poleceń typu `python manage.py runserver`.
 
 ---
 
-## Rejestracja użytkowników
+## Punkt startowy
 
-Implementujemy system rejestracji nowych użytkowników.
+Mamy już filmy, reżyserów, recenzje i linki między stronami.
 
-Django oferuje gotowy formularz `UserCreationForm` dla tego celu.
+Do tej pory zwykły użytkownik nie ma własnego konta w aplikacji.
+
+Na tych zajęciach dodamy logowanie, profil, rejestrację i wylogowanie.
 
 ---
 
-## Widok rejestracji
+## Uwierzytelnianie w Django
 
-W [`movies/views.py`](http://localhost:8888/edit/movies/views.py):
+Django ma wbudowany system użytkowników.
+
+Korzystaliśmy już z niego pośrednio przy panelu administratora.
+
+Teraz użyjemy go dla zwykłych stron aplikacji:
+
+- logowanie,
+- wylogowanie,
+- profil,
+- rejestracja nowego użytkownika.
+
+---
+
+## Sprawdzenie konfiguracji
+
+Otwieramy `goodmovies/settings.py`:
+
+```bash
+nano goodmovies/settings.py
+```
+
+Sprawdzamy, czy w `INSTALLED_APPS` są:
 
 ```python
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
+"django.contrib.auth",
+"django.contrib.contenttypes",
+"django.contrib.sessions",
+```
 
-@require_http_methods(["GET", "POST"])
-def user_signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-    
-    return render(
-        request,
-        'registration/signup.html',
-        {'form': form}
-    )
+Jeśli panel admina działał, te elementy zwykle już są poprawnie ustawione.
+
+---
+
+## Sprawdzenie konfiguracji
+
+W tym samym pliku sprawdzamy `MIDDLEWARE`.
+
+Powinny tam być między innymi:
+
+```python
+"django.contrib.sessions.middleware.SessionMiddleware",
+"django.contrib.auth.middleware.AuthenticationMiddleware",
+```
+
+`SessionMiddleware` pamięta sesję przeglądarki.
+
+`AuthenticationMiddleware` udostępnia `request.user`.
+
+---
+
+## Wbudowane URL-e auth
+
+Django dostarcza gotowe widoki logowania, wylogowania i zmiany hasła.
+
+Podłączymy je przez `include`.
+
+Otwieramy `goodmovies/urls.py`:
+
+```bash
+nano goodmovies/urls.py
 ```
 
 ---
 
-## Dlaczego sprawdzamy `request.method == "POST"`?
+## `include("django.contrib.auth.urls")`
 
-HTTP ma różne metody:
-- `GET` — pobranie strony (wyświetlenie formularza)
-- `POST` — wysłanie danych (przetworzenie formularza)
+Na górze pliku importujemy `include`:
 
-Zazwyczaj:
-- `GET` → wyświetlujemy pusty formularz
-- `POST` → przetwarzamy dane i zapisujemy użytkownika
+```python
+from django.urls import include, path
+```
+
+Do `urlpatterns` dodajemy:
+
+```python
+path("accounts/", include("django.contrib.auth.urls")),
+```
+
+To doda między innymi `/accounts/login/` i `/accounts/logout/`.
 
 ---
 
-## Szablon rejestracji
+## Co robi `include`?
 
-Tworzymy `movies/templates/registration/signup.html`:
+`include` dołącza zestaw adresów z innego modułu.
+
+Nie musimy osobno pisać ścieżek do logowania i wylogowania.
+
+Django dostarcza te widoki w `django.contrib.auth.urls`.
+
+My musimy przygotować szablony HTML.
+
+---
+
+## Szablon logowania
+
+Tworzymy katalog i plik:
+
+```bash
+mkdir -p movies/templates/registration
+nano movies/templates/registration/login.html
+```
+
+Django szuka szablonu logowania właśnie pod nazwą `registration/login.html`.
+
+---
+
+## `login.html`
 
 ```django
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Rejestracja</h1>
+  <h2>Logowanie</h2>
 
-<form method="post">
+  <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Zarejestruj się</button>
-</form>
+    <button type="submit">Zaloguj się</button>
+  </form>
 
-<p>Masz już konto? <a href="{% url 'login' %}">Zaloguj się</a></p>
+  <p><a href="{% url 'signup' %}">Zarejestruj się</a></p>
 {% endblock %}
 ```
 
@@ -106,104 +177,480 @@ Tworzymy `movies/templates/registration/signup.html`:
 
 ## Token CSRF
 
-`{% csrf_token %}` to bezpieczeństwo Django — chroni przed atakami CSRF (Cross-Site Request Forgery).
+`{% csrf_token %}` jest wymagany w formularzach wysyłanych metodą POST.
 
-Musi być w każdym formularzu wysyłającym dane POST.
+Chroni przed atakiem CSRF, czyli podszyciem się pod formularz z innej strony.
+
+Jeśli go zabraknie, Django odrzuci wysłanie formularza.
 
 ---
 
-## Szablon logowania
+## Sprawdzenie logowania
 
-Tworzymy `movies/templates/registration/login.html`:
+Uruchamiamy serwer:
 
-```django
-{% extends 'base.html' %}
+```bash
+python manage.py runserver
+```
 
-{% block content %}
-<h1>Logowanie</h1>
+Wchodzimy na:
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Zaloguj się</button>
-</form>
+[http://127.0.0.1:8000/accounts/login/](http://127.0.0.1:8000/accounts/login/)
 
-<p>Nie masz konta? <a href="{% url 'signup' %}">Zarejestruj się</a></p>
-{% endblock %}
+Jeśli nie pamiętamy hasła:
+
+```bash
+python manage.py changepassword NAZWA_UZYTKOWNIKA
 ```
 
 ---
 
-## Szablon wylogowania
+## Profil użytkownika
 
-Tworzymy `movies/templates/registration/logged_out.html`:
+Po zalogowaniu Django domyślnie próbuje przejść na `/accounts/profile/`.
 
-```django
-{% extends 'base.html' %}
+Dodamy więc taką stronę.
 
-{% block content %}
-<h1>Wylogowano</h1>
-
-<p>Zostałeś wylogowany.</p>
-<p><a href="{% url 'login' %}">Zaloguj się ponownie</a></p>
-{% endblock %}
-```
+Najpierw widok, potem URL, potem szablon.
 
 ---
 
-## Rejestracja URL
+## Widok profilu
 
-W [`goodmovies/urls.py`](http://localhost:8888/edit/goodmovies/urls.py):
+Otwieramy `movies/views.py`:
+
+```bash
+nano movies/views.py
+```
+
+Dodajemy import:
 
 ```python
-from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
-from movies.views import user_signup
+from django.contrib.auth.decorators import login_required
+```
 
-urlpatterns = [
-    path('accounts/login/', LoginView.as_view(), name='login'),
-    path('accounts/logout/', LogoutView.as_view(), name='logout'),
-    path('accounts/signup/', user_signup, name='signup'),
+---
+
+## Widok profilu
+
+Dopisujemy widok:
+
+```python
+@login_required
+def profile_view(request):
+    return render(request, "profile.html")
+```
+
+`@login_required` oznacza, że strona jest dostępna tylko po zalogowaniu.
+
+Niezalogowany użytkownik zostanie przekierowany do logowania.
+
+---
+
+## URL profilu
+
+W `goodmovies/urls.py` dodajemy:
+
+```python
+path("accounts/profile/", views.profile_view, name="user-profile"),
+```
+
+Ten adres pasuje do domyślnego zachowania Django po logowaniu.
+
+---
+
+## Szablon profilu
+
+Tworzymy plik:
+
+```bash
+nano movies/templates/profile.html
+```
+
+Django udostępnia aktualnego użytkownika jako `request.user`.
+
+---
+
+## `profile.html`
+
+```django
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Profil</h2>
+
+  <p>Użytkownik: {{ request.user.username }}</p>
+  <p>Ostatnie logowanie: {{ request.user.last_login }}</p>
+
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Wyloguj się</button>
+  </form>
+{% endblock %}
+```
+
+Wylogowanie robimy formularzem POST, nie zwykłym linkiem.
+
+---
+
+## Przekierowanie po logowaniu
+
+Jeśli chcemy jawnie ustawić stronę po zalogowaniu, edytujemy `goodmovies/settings.py`:
+
+```bash
+nano goodmovies/settings.py
+```
+
+Na końcu dodajemy:
+
+```python
+LOGIN_REDIRECT_URL = "/accounts/profile/"
+```
+
+---
+
+## Sprawdzenie profilu
+
+Wchodzimy na:
+
+[http://127.0.0.1:8000/accounts/login/](http://127.0.0.1:8000/accounts/login/)
+
+Logujemy się.
+
+Po zalogowaniu powinniśmy zobaczyć profil użytkownika.
+
+Sprawdzamy też przycisk wylogowania.
+
+---
+
+## Rejestracja użytkowników
+
+Logowanie działa dla istniejących kont.
+
+Teraz dodamy rejestrację nowych użytkowników.
+
+Użyjemy gotowego formularza Django:
+
+```python
+UserCreationForm
+```
+
+Na kolejnych slajdach dodamy URL, widok i szablony.
+
+---
+
+## URL rejestracji
+
+W `goodmovies/urls.py` dodajemy ścieżkę:
+
+```python
+path("accounts/signup/", views.user_signup, name="signup"),
+```
+
+Najwygodniej dodać ją przed:
+
+```python
+path("accounts/", include("django.contrib.auth.urls")),
+```
+
+---
+
+## Widok rejestracji
+
+Otwieramy `movies/views.py`:
+
+```bash
+nano movies/views.py
+```
+
+Dodajemy importy:
+
+```python
+from django.contrib.auth.forms import UserCreationForm
+```
+
+Jeśli `render` jest już zaimportowany, nie dodajemy go drugi raz.
+
+---
+
+## Widok rejestracji
+
+```python
+def user_signup(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return render(request, "registration/signup_complete.html")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "registration/signup.html", {"form": form})
+```
+
+Na kolejnym slajdzie wyjaśnimy `GET`, `POST` i formularz.
+
+---
+
+## Co robi ten widok?
+
+`GET` oznacza wejście na stronę i pokazanie pustego formularza.
+
+`POST` oznacza wysłanie wypełnionego formularza.
+
+`UserCreationForm(request.POST)` wczytuje dane z formularza.
+
+`form.is_valid()` sprawdza poprawność danych.
+
+`form.save()` tworzy użytkownika w bazie.
+
+---
+
+## Szablon rejestracji
+
+Tworzymy plik:
+
+```bash
+nano movies/templates/registration/signup.html
+```
+
+---
+
+## `signup.html`
+
+```django
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Rejestracja</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Zarejestruj się</button>
+  </form>
+
+  <p><a href="{% url 'login' %}">Mam już konto</a></p>
+{% endblock %}
+```
+
+---
+
+## Szablon po rejestracji
+
+Tworzymy plik:
+
+```bash
+nano movies/templates/registration/signup_complete.html
+```
+
+Ten szablon pokażemy po poprawnym utworzeniu konta.
+
+---
+
+## `signup_complete.html`
+
+```django
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Konto utworzone</h2>
+
+  <p>Możesz się teraz zalogować.</p>
+  <p><a href="{% url 'login' %}">Przejdź do logowania</a></p>
+{% endblock %}
+```
+
+---
+
+## Sprawdzenie rejestracji
+
+Wchodzimy na:
+
+[http://127.0.0.1:8000/accounts/signup/](http://127.0.0.1:8000/accounts/signup/)
+
+Zakładamy nowe konto.
+
+Po poprawnej rejestracji powinniśmy zobaczyć stronę `Konto utworzone`.
+
+Potem logujemy się na nowe konto.
+
+---
+
+## Szablon po wylogowaniu
+
+Django po wylogowaniu szuka szablonu:
+
+```text
+registration/logged_out.html
+```
+
+Tworzymy plik:
+
+```bash
+nano movies/templates/registration/logged_out.html
+```
+
+---
+
+## `logged_out.html`
+
+```django
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Wylogowano</h2>
+
+  <p>Sesja została zakończona.</p>
+  <p><a href="{% url 'login' %}">Zaloguj się ponownie</a></p>
+{% endblock %}
+```
+
+---
+
+## Jeśli szablon się nie podmienia
+
+Jeśli Django nie używa naszego `logged_out.html`, sprawdzamy kolejność aplikacji w `INSTALLED_APPS`.
+
+Najprościej dać `movies` przed aplikacjami Django:
+
+```python
+INSTALLED_APPS = [
+    "movies",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
 ```
 
+Dzięki temu szablony z `movies` mają pierwszeństwo.
+
 ---
 
-## Sprawdzanie autoryzacji w szablonach
+## Linki użytkownika w `base.html`
 
-W szablonach możemy sprawdzić, czy użytkownik jest zalogowany:
+Otwieramy szablon bazowy:
+
+```bash
+nano movies/templates/base.html
+```
+
+Dodamy informację o użytkowniku oraz logowanie i wylogowanie.
+
+---
+
+## Fragment do `base.html`
 
 ```django
-{% if user.is_authenticated %}
-    <p>Cześć, {{ user.username }}!</p>
-    <a href="{% url 'logout' %}">Wyloguj się</a>
+{% if request.user.is_authenticated %}
+  <p>Zalogowany jako {{ request.user.username }}</p>
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Wyloguj się</button>
+  </form>
 {% else %}
+  <p>
     <a href="{% url 'login' %}">Zaloguj się</a>
+    |
+    <a href="{% url 'signup' %}">Zarejestruj się</a>
+  </p>
 {% endif %}
 ```
 
+Ten fragment najlepiej umieścić przed `{% block content %}`.
+
 ---
 
-## Chronimy widoki przed dostępem
+## Dlaczego wylogowanie to formularz?
 
-Używamy dekoratora `@login_required`:
+Współczesne Django oczekuje wylogowania metodą POST.
+
+Zwykły link wysyła żądanie GET.
+
+Dlatego przy wylogowaniu używamy:
+
+```django
+<form method="post" action="{% url 'logout' %}">
+```
+
+i dodajemy `{% csrf_token %}`.
+
+---
+
+## Ochrona innych widoków
+
+Ten sam dekorator możemy użyć przy dowolnym widoku funkcyjnym.
+
+Przykład:
+
+```python
+@login_required
+def first_movie(request):
+    movie = Movie.objects.first()
+    return render(request, "first_movie.html", {"movie": movie})
+```
+
+Taki widok będzie dostępny tylko po zalogowaniu.
+
+---
+
+## Sprawdzenie całości
+
+Sprawdzamy po kolei:
+
+1. `/accounts/signup/` - rejestracja.
+2. `/accounts/login/` - logowanie.
+3. `/accounts/profile/` - profil.
+4. Przycisk wylogowania.
+5. Widok strony po wylogowaniu.
+
+Jeśli coś nie działa, zaczynamy od sprawdzenia `urls.py` i nazw szablonów.
+
+---
+
+## Zadanie opcjonalne 1
+
+Dodaj na stronie profilu link do listy filmów.
+
+Użyj nazwy URL `movie-list-v2`.
+
+---
+
+## Rozwiązanie 1
+
+W `profile.html` można dopisać:
+
+```django
+<p><a href="{% url 'movie-list-v2' %}">Przejdź do listy filmów</a></p>
+```
+
+Dzięki nazwie URL nie wpisujemy ręcznie `/filmy-v2/`.
+
+---
+
+## Zadanie opcjonalne 2
+
+Zabezpiecz widok `first_movie` dekoratorem `@login_required`.
+
+Jeśli nie masz tego widoku w projekcie, potraktuj zadanie jako przykład dla prowadzącego.
+
+---
+
+## Rozwiązanie 2
+
+W `movies/views.py`:
 
 ```python
 from django.contrib.auth.decorators import login_required
 
+
 @login_required
-def user_profile(request):
-    return render(request, 'profile.html')
+def first_movie(request):
+    movie = Movie.objects.first()
+    return render(request, "first_movie.html", {"movie": movie})
 ```
 
-Teraz tylko zalogowani użytkownicy mogą odwiedzić tę stronę.
-
----
-
-## Dalsze kroki
-
-1. Dodaj formularze do edycji profilu użytkownika
-2. Rozszerz system uprawnień (permissions, groups)
-3. Dodaj możliwość dodawania recenzji tylko dla zalogowanych
-4. Zaimplementuj funkcjonalność „reset hasła"
-5. Dodaj potwierdzenie emaila przy rejestracji
+Niezalogowany użytkownik zostanie przekierowany na `/accounts/login/`.

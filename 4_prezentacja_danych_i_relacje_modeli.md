@@ -58,23 +58,20 @@ Otwieramy plik `movies/views.py`:
 nano movies/views.py
 ```
 
-Dodajemy osobny widok listy filmów. Jeśli import `Movie` już istnieje po ćwiczeniu 3, nie dodajemy go drugi raz.
+Dodajemy osobny widok listy filmów.
+
+Jeśli import `Movie` już istnieje, nie dodajemy go drugi raz.
 
 ```python
-from django.shortcuts import render
-
 from .models import Movie
-
-
-def hello_world(request):
-    movies = Movie.objects.all()
-    return render(request, "hello.html", {"movies": movies})
 
 
 def list_movies(request):
     movies = Movie.objects.all()
     return render(request, "movie_list.html", {"movies": movies})
 ```
+
+Na kolejnym slajdzie wyjaśnimy, czemu ten widok przypomina `hello_world`.
 
 ---
 
@@ -238,6 +235,20 @@ Takie pole nazywa się kluczem obcym, czyli `ForeignKey`.
 
 ---
 
+## Diagram relacji
+
+Tak możemy myśleć o modelach po dzisiejszej zmianie:
+
+```text
+Director 1 ─── wiele Movie
+```
+
+Jeden reżyser może mieć wiele filmów.
+
+Jeden film wskazuje jednego reżysera albo na razie nie ma go przypisanego.
+
+---
+
 ## Model reżysera
 
 Otwieramy `movies/models.py`:
@@ -267,6 +278,8 @@ class Director(models.Model):
     def __str__(self):
         return self.first_name + " " + self.last_name
 ```
+
+Na kolejnych slajdach wyjaśnimy nowe elementy tego modelu.
 
 ---
 
@@ -326,11 +339,30 @@ cat requirements.txt
 
 ## Relacja filmu z reżyserem
 
-W tym samym pliku `movies/models.py` aktualizujemy model `Movie`.
+Edytujemy istniejący model `Movie`:
 
-Zostawiamy pola z ćwiczenia 3: `title`, `description`, `premiere_date`.
+```bash
+nano movies/models.py
+```
 
-Dodajemy etykiety oraz pole `director`:
+Dopisujemy pole `director` wewnątrz obecnej klasy.
+
+```python
+    director = models.ForeignKey(
+        to="movies.Director",
+        verbose_name="reżyser",
+        related_name="movies",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+```
+
+Na kolejnym slajdzie zobaczymy, jak wygląda cała klasa `Movie` po tej zmianie.
+
+---
+
+## Model `Movie` po zmianie
 
 ```python
 class Movie(models.Model):
@@ -358,6 +390,20 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 ```
+
+Na kolejnych slajdach wyjaśnimy nowe elementy pola `director`.
+
+---
+
+## Co nowego przy `director`?
+
+`ForeignKey` łączy film z jednym reżyserem.
+
+`to="movies.Director"` wskazuje model, do którego prowadzi relacja.
+
+`related_name="movies"` pozwala później przejść od reżysera do jego filmów.
+
+`on_delete=models.CASCADE` oznacza: jeśli usuniemy reżysera, Django usunie też jego filmy.
 
 ---
 
@@ -459,7 +505,13 @@ Po tym kroku w bazie istnieje tabela reżyserów, a tabela filmów ma nowe pole 
 
 ## Konfiguracja plików media
 
-Na końcu `goodmovies/settings.py` dodajemy:
+Otwieramy `goodmovies/settings.py`:
+
+```bash
+nano goodmovies/settings.py
+```
+
+Na końcu pliku dodajemy:
 
 ```python
 MEDIA_URL = "/media/"
@@ -472,21 +524,43 @@ To mówi Django, pod jakim adresem i w jakim katalogu obsługiwać pliki wgrywan
 
 ## Udostępnianie media w trybie deweloperskim
 
-W `goodmovies/urls.py` dopisujemy importy:
+Otwieramy `goodmovies/urls.py`:
+
+```bash
+nano goodmovies/urls.py
+```
+
+Na górze pliku dopisujemy:
 
 ```python
 from django.conf import settings
 from django.conf.urls.static import static
 ```
 
-Na końcu pliku dodajemy:
+---
+
+## Udostępnianie media w trybie deweloperskim
+
+Pod `urlpatterns` w tym samym pliku dodajemy:
 
 ```python
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 ```
 
-To rozwiązanie jest przeznaczone do pracy lokalnej przy `DEBUG = True`.
+Na kolejnym slajdzie wyjaśnimy, po co ten fragment jest potrzebny.
+
+---
+
+## Po co dopisujemy media do `urls.py`?
+
+`MEDIA_ROOT` mówi, gdzie Django zapisuje wgrane pliki.
+
+Ale przeglądarka potrzebuje jeszcze adresu URL, pod którym może je pobrać.
+
+Ten wpis sprawia, że lokalnie adresy typu `/media/directors/plik.jpg` będą działać.
+
+W prawdziwym wdrożeniu pliki media zwykle serwuje serwer WWW, nie Django.
 
 ---
 
@@ -531,7 +605,15 @@ Powinna pojawić się sekcja reżyserów. Dodajemy 1-2 reżyserów, a potem edyt
 
 ## Reżyser na liście filmów
 
-Możemy teraz uzupełnić `movie_list.html` o reżysera:
+Otwieramy szablon listy filmów:
+
+```bash
+nano movies/templates/movie_list.html
+```
+
+Nie usuwamy daty premiery, opisu ani `{% empty %}`.
+
+Dopisujemy tylko fragment z reżyserem, np. pod tytułem filmu:
 
 ```django
 {% if movie.director %}
@@ -539,39 +621,101 @@ Możemy teraz uzupełnić `movie_list.html` o reżysera:
 {% endif %}
 ```
 
-Ten fragment wkładamy wewnątrz pętli `{% for movie in movies %}`.
-
 ---
 
-## Zadania opcjonalne
-
-1. W szablonie `movie_list.html` wyświetl osobno tytuł, opis, datę premiery i reżysera każdego filmu.
-2. Popraw wygląd listy prostym HTML-em i CSS-em.
-3. Dodaj widok szczegółów pierwszego filmu pod adresem `/pierwszy-film/`.
-4. W panelu admin dodaj zdjęcie reżysera i sprawdź, czy plik pojawia się w katalogu `media/`.
-
----
-
-## Rozwiązania
-
-Zadanie 1, przykład wnętrza pętli:
+## `movie_list.html` po zmianie
 
 ```django
-<li>
-  <strong>{{ movie.title }}</strong>
-  {% if movie.premiere_date %}
-    <br>Premiera: {{ movie.premiere_date }}
-  {% endif %}
-  {% if movie.director %}
-    <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
-  {% endif %}
-  {% if movie.description %}
-    <p>{{ movie.description }}</p>
-  {% endif %}
-</li>
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Filmy</h2>
+
+  <ul>
+    {% for movie in movies %}
+      <li>
+        <strong>{{ movie.title }}</strong>
+
+        {% if movie.director %}
+          <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
+        {% endif %}
+
+        {% if movie.premiere_date %}
+          <br>Premiera: {{ movie.premiere_date }}
+        {% endif %}
+
+        {% if movie.description %}
+          <p>{{ movie.description }}</p>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Brak filmów w bazie.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
 ```
 
-Zadanie 2, prosty CSS w `base.html`:
+---
+
+## Sprawdzenie listy z reżyserem
+
+Odświeżamy stronę:
+
+[http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/)
+
+Przy filmach z przypisanym reżyserem powinniśmy zobaczyć jego imię i nazwisko.
+
+Jeśli reżyser się nie pojawia, sprawdzamy w panelu admina, czy film ma przypisanego reżysera.
+
+---
+
+## Zadanie opcjonalne 1
+
+W `movie_list.html` pokaż informację także wtedy, gdy film nie ma przypisanego reżysera.
+
+Zamiast pomijać reżysera, wyświetl:
+
+```text
+Reżyser: brak danych
+```
+
+---
+
+## Rozwiązanie 1
+
+Edytujemy tylko warunek `if movie.director`.
+
+W `movies/templates/movie_list.html` może wyglądać tak:
+
+```django
+{% if movie.director %}
+  <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
+{% else %}
+  <br>Reżyser: brak danych
+{% endif %}
+```
+
+`{% else %}` działa wtedy, gdy warunek z `if` nie jest spełniony.
+
+---
+
+## Zadanie opcjonalne 2
+
+Popraw wygląd listy filmów prostym CSS-em.
+
+Wystarczy zmienić wspólny szablon `base.html`, żeby styl zadziałał na wszystkich stronach.
+
+---
+
+## Rozwiązanie 2
+
+Otwieramy `base.html`:
+
+```bash
+nano movies/templates/base.html
+```
+
+W sekcji `<head>` dodajemy:
 
 ```html
 <style>
@@ -582,9 +726,23 @@ Zadanie 2, prosty CSS w `base.html`:
 
 ---
 
-## Rozwiązania
+## Zadanie opcjonalne 3
 
-Zadanie 3, widok w `movies/views.py`:
+Dodaj w `movies/views.py` widok `first_movie`.
+
+Widok ma pobrać pierwszy film z bazy i przekazać go do szablonu `first_movie.html`.
+
+---
+
+## Rozwiązanie 3
+
+Otwieramy `movies/views.py`:
+
+```bash
+nano movies/views.py
+```
+
+Dopisujemy:
 
 ```python
 def first_movie(request):
@@ -592,13 +750,51 @@ def first_movie(request):
     return render(request, "first_movie.html", {"movie": movie})
 ```
 
-Adres w `goodmovies/urls.py`:
+`Movie.objects.first()` zwraca pierwszy film albo `None`, jeśli baza jest pusta.
+
+---
+
+## Zadanie opcjonalne 4
+
+Podłącz widok z poprzedniego zadania pod adresem:
+
+[http://127.0.0.1:8000/pierwszy-film/](http://127.0.0.1:8000/pierwszy-film/)
+
+---
+
+## Rozwiązanie 4
+
+Otwieramy `goodmovies/urls.py`:
+
+```bash
+nano goodmovies/urls.py
+```
+
+Do `urlpatterns` dopisujemy:
 
 ```python
 path("pierwszy-film/", views.first_movie),
 ```
 
-Szablon `movies/templates/first_movie.html`:
+---
+
+## Zadanie opcjonalne 5
+
+Utwórz szablon `first_movie.html`.
+
+Ma pokazać tytuł i opis filmu albo informację, że w bazie nie ma filmów.
+
+---
+
+## Rozwiązanie 5
+
+Tworzymy szablon:
+
+```bash
+nano movies/templates/first_movie.html
+```
+
+Dopisujemy:
 
 ```django
 {% extends "base.html" %}
@@ -613,4 +809,24 @@ Szablon `movies/templates/first_movie.html`:
 {% endblock %}
 ```
 
-Zadanie 4: po zapisaniu zdjęcia w adminie plik powinien trafić do `media/directors/`.
+---
+
+## Zadanie opcjonalne 6
+
+W panelu admin dodaj zdjęcie reżysera.
+
+Potem sprawdź, czy plik pojawił się w katalogu `media/directors/`.
+
+---
+
+## Rozwiązanie 6
+
+W panelu admin otwieramy reżysera, wybieramy plik w polu `zdjęcie` i zapisujemy formularz.
+
+W terminalu sprawdzamy katalog:
+
+```bash
+ls media/directors
+```
+
+Jeśli plik jest widoczny, upload działa.
