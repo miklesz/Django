@@ -75,7 +75,7 @@ Pod modelem `Movie` dodajemy model `Review`.
 
 ---
 
-## Model recenzji
+## Model recenzji - pola
 
 ```python
 class Review(models.Model):
@@ -103,7 +103,17 @@ class Review(models.Model):
         verbose_name="data utworzenia",
         auto_now_add=True,
     )
+```
 
+Na następnym slajdzie dopiszemy ustawienia tej samej klasy.
+
+---
+
+## Model recenzji - ustawienia
+
+To wklejamy dalej wewnątrz `Review`, pod polami.
+
+```python
     class Meta:
         ordering = ["-created_at"]
         verbose_name = "recenzja"
@@ -120,6 +130,8 @@ Na kolejnym slajdzie wyjaśnimy nowe elementy modelu.
 ## Co nowego w `Review`?
 
 `choices=RATING_CHOICES` ogranicza ocenę do kilku wartości.
+
+W bazie zapisze się liczba, np. `5`; w formularzu i szablonie możemy pokazać etykietę, np. `★★★★★`.
 
 `auto_now_add=True` automatycznie zapisuje datę utworzenia recenzji.
 
@@ -171,11 +183,17 @@ Otwieramy `movies/admin.py`:
 nano movies/admin.py
 ```
 
-Jeśli `Movie` i `Director` są już zarejestrowane, dodajemy tylko `Review`.
+Jeśli `Movie` i `Director` są już zarejestrowane, zostawiamy ich linie.
+
+Dopisujemy `Review` do importu i dodajemy rejestrację `Review`.
+
+Finalnie fragment może wyglądać tak:
 
 ```python
 from .models import Director, Movie, Review
 
+admin.site.register(Director)
+admin.site.register(Movie)
 admin.site.register(Review)
 ```
 
@@ -194,6 +212,18 @@ Wchodzimy do panelu:
 [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
 Powinna pojawić się sekcja recenzji. Dodajemy 2-3 recenzje do istniejących filmów.
+
+---
+
+## Jeśli nie widać recenzji w adminie
+
+Sprawdzamy trzy rzeczy:
+
+- czy `Review` jest w `movies/models.py`,
+- czy migracja jest wykonana: `python manage.py showmigrations movies`,
+- czy `Review` jest w `movies/admin.py`.
+
+Warto też upewnić się, że `runserver` działa z właściwego katalogu projektu.
 
 ---
 
@@ -250,11 +280,13 @@ Otwieramy `movies/views.py`:
 nano movies/views.py
 ```
 
-Dodajemy import `ListView` i klasy widoków.
-
 ---
 
 ## Widok klasowy listy filmów
+
+Dodajemy import `ListView` i klasę widoku.
+
+Jeśli import modeli już istnieje, dopisujemy `Director` i `Review` do tej samej linii.
 
 ```python
 from django.views.generic import ListView
@@ -358,7 +390,13 @@ Powinniśmy zobaczyć listę filmów z nowego widoku klasowego.
 
 Ten sam mechanizm możemy zastosować do innych modeli.
 
-W `movies/views.py` dopisujemy:
+Otwieramy `movies/views.py`:
+
+```bash
+nano movies/views.py
+```
+
+Dopisujemy:
 
 ```python
 class DirectorListView(ListView):
@@ -375,7 +413,13 @@ class ReviewListView(ListView):
 
 ## URL dla list
 
-W `goodmovies/urls.py` dopisujemy:
+Otwieramy `goodmovies/urls.py`:
+
+```bash
+nano goodmovies/urls.py
+```
+
+Do istniejącego `urlpatterns` dopisujemy:
 
 ```python
 path("rezyserzy/", views.DirectorListView.as_view(), name="director-list"),
@@ -430,7 +474,7 @@ nano movies/templates/review_list.html
     {% for review in object_list %}
       <li>
         {{ review.movie.title }}: {{ review.text }}
-        <br>Ocena: {{ review.rating }}
+        <br>Ocena: {{ review.get_rating_display }}
       </li>
     {% empty %}
       <li>Brak recenzji w bazie.</li>
@@ -450,6 +494,8 @@ nano movies/templates/review_list.html
 `review.movie.title` to tytuł tego filmu.
 
 Django pozwala tak przechodzić po relacjach w szablonach.
+
+`review.get_rating_display` pokazuje etykietę oceny z `RATING_CHOICES`, czyli gwiazdki zamiast samej liczby.
 
 ---
 
