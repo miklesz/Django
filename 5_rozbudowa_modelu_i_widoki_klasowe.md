@@ -77,6 +77,10 @@ Pod modelem `Movie` dodajemy model `Review`.
 
 ## Model recenzji - pola
 
+To jest pierwsza część tej samej klasy `Review`.
+
+Dzielimy edycję na dwa slajdy tylko po to, żeby osobno omówić pola i ustawienia modelu.
+
 ```python
 class Review(models.Model):
     RATING_CHOICES = [
@@ -111,7 +115,9 @@ Na następnym slajdzie dopiszemy ustawienia tej samej klasy.
 
 ## Model recenzji - ustawienia
 
-To wklejamy dalej wewnątrz `Review`, pod polami.
+To nadal jest ta sama klasa `Review`.
+
+Nie tworzymy drugiej klasy. Ten fragment wklejamy dalej wewnątrz `Review`, pod polami z poprzedniego slajdu.
 
 ```python
     class Meta:
@@ -127,17 +133,25 @@ Na kolejnym slajdzie wyjaśnimy nowe elementy modelu.
 
 ---
 
-## Co nowego w `Review`?
+## Co nowego w `Review`? - pola
 
 `choices=RATING_CHOICES` ogranicza ocenę do kilku wartości.
 
-W bazie zapisze się liczba, np. `5`; w formularzu i szablonie możemy pokazać etykietę, np. `★★★★★`.
+W bazie zapisze się liczba, np. `5`.
 
 `auto_now_add=True` automatycznie zapisuje datę utworzenia recenzji.
 
 `related_name="reviews"` pozwoli później przejść od filmu do jego recenzji.
 
-`ordering = ["-created_at"]` sortuje od najnowszych recenzji.
+---
+
+## Co nowego w `Review`? - ustawienia
+
+`ordering = ["-created_at"]` ustawia domyślną kolejność recenzji.
+
+Minus przed `created_at` oznacza sortowanie malejące, czyli najnowsze recenzje jako pierwsze.
+
+`get_rating_display()` omówimy później przy szablonie recenzji.
 
 ---
 
@@ -155,22 +169,10 @@ Aplikujemy migrację:
 python manage.py migrate
 ```
 
----
-
-## Podgląd migracji
-
-Dla kontroli możemy sprawdzić katalog migracji:
+Dla kontroli możemy sprawdzić, czy migracja aplikacji `movies` jest wykonana:
 
 ```bash
-ls movies/migrations
-```
-
-Najnowszy plik migracji powinien dodawać model `Review`.
-
-Jeśli chcemy go podejrzeć, otwieramy plik z najwyższym numerem, np.:
-
-```bash
-cat movies/migrations/0003_review.py
+python manage.py showmigrations movies
 ```
 
 ---
@@ -211,19 +213,9 @@ Wchodzimy do panelu:
 
 [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
-Powinna pojawić się sekcja recenzji. Dodajemy 2-3 recenzje do istniejących filmów.
+Powinna pojawić się sekcja recenzji.
 
----
-
-## Jeśli nie widać recenzji w adminie
-
-Sprawdzamy trzy rzeczy:
-
-- czy `Review` jest w `movies/models.py`,
-- czy migracja jest wykonana: `python manage.py showmigrations movies`,
-- czy `Review` jest w `movies/admin.py`.
-
-Warto też upewnić się, że `runserver` działa z właściwego katalogu projektu.
+Dodajemy 2-3 recenzje do istniejących filmów.
 
 ---
 
@@ -239,24 +231,23 @@ Najpierw użyjemy `ListView`, czyli gotowego widoku listy obiektów.
 
 ---
 
-## Najprostszy widok klasowy
+## Mapa widoków klasowych
 
-Widok klasowy może reagować osobno na różne metody HTTP.
+To jest ogólna idea, nie fragment do wpisywania w projekcie.
 
-```python
-from django.http import HttpResponse
-from django.views import View
-
-
-class MyView(View):
-    def get(self, request):
-        return HttpResponse("GET")
-
-    def post(self, request):
-        return HttpResponse("POST")
+```text
+View
+`-- ListView
+    |-- MovieListView
+    |-- DirectorListView
+    `-- ReviewListView
 ```
 
-My za chwilę użyjemy gotowej klasy `ListView`, więc nie będziemy pisać `get` ręcznie.
+`View` to ogólny mechanizm widoku klasowego.
+
+`ListView` to gotowy widok do list obiektów.
+
+Nasze klasy dopasują `ListView` do konkretnych modeli.
 
 ---
 
@@ -333,6 +324,24 @@ path("filmy-v2/", views.MovieListView.as_view(), name="movie-list-v2"),
 
 ---
 
+## Co robi `name=`?
+
+`name="movie-list-v2"` pojawia się tu po raz pierwszy.
+
+`"filmy-v2/"` to adres wpisywany w przeglądarce.
+
+`name="movie-list-v2"` to nazwa tego adresu wewnątrz Django.
+
+Później w szablonie będzie można napisać:
+
+```django
+{% url 'movie-list-v2' %}
+```
+
+i Django samo zbuduje adres `/filmy-v2/`.
+
+---
+
 ## Szablon dla `ListView`
 
 Tworzymy szablon:
@@ -367,6 +376,18 @@ W widoku klasowym lista obiektów jest dostępna jako `object_list`.
   </ul>
 {% endblock %}
 ```
+
+---
+
+## Co robi `movie_list_v2.html`?
+
+`extends` i `block` działają tak samo jak we wcześniejszych szablonach.
+
+Nowością jest `object_list`, czyli lista przekazana automatycznie przez `ListView`.
+
+`{% for movie in object_list %}` przechodzi po filmach.
+
+`movie.director.first_name` to znany już mechanizm przechodzenia po relacji z filmu do reżysera.
 
 ---
 
@@ -456,6 +477,18 @@ nano movies/templates/director_list.html
 
 ---
 
+## Co robi `director_list.html`?
+
+Mechanizm jest taki sam jak przy filmach.
+
+`object_list` zawiera teraz reżyserów, bo `DirectorListView` ma `model = Director`.
+
+`director` to pojedynczy reżyser z pętli.
+
+Pokazujemy jego zwykłe pola: `first_name` i `last_name`.
+
+---
+
 ## Szablon listy recenzji
 
 Tworzymy plik:
@@ -463,6 +496,12 @@ Tworzymy plik:
 ```bash
 nano movies/templates/review_list.html
 ```
+
+W szablonie pojawi się zapis `review.movie.title`.
+
+To ten sam typ przejścia po relacji, który widzieliśmy wcześniej przy `movie.director.first_name`.
+
+Tutaj przechodzimy od recenzji do filmu.
 
 ```django
 {% extends "base.html" %}
@@ -485,7 +524,7 @@ nano movies/templates/review_list.html
 
 ---
 
-## Co oznacza `review.movie.title`?
+## Relacja: `review.movie.title`
 
 `review` to jedna recenzja z pętli.
 
@@ -495,7 +534,33 @@ nano movies/templates/review_list.html
 
 Django pozwala tak przechodzić po relacjach w szablonach.
 
-`review.get_rating_display` pokazuje etykietę oceny z `RATING_CHOICES`, czyli gwiazdki zamiast samej liczby.
+---
+
+## Ocena z gwiazdkami
+
+`rating` jest polem z `choices=RATING_CHOICES`.
+
+W bazie zapisuje się liczba, np. `5`.
+
+W szablonie chcemy pokazać etykietę, czyli gwiazdki:
+
+```django
+{{ review.get_rating_display }}
+```
+
+---
+
+## Skąd ta nazwa?
+
+Django tworzy metodę według wzoru:
+
+```text
+get_<nazwa_pola>_display
+```
+
+Dla pola `rating` powstaje `get_rating_display`.
+
+W szablonie Django zapisujemy metodę bez nawiasów.
 
 ---
 
@@ -531,9 +596,25 @@ Cały fragment recenzji może wtedy pokazywać film, tekst, ocenę i datę.
 
 ---
 
+## Przygotowanie do zadania 2
+
+Do następnego zadania potrzebujemy reżysera z pustym polem `about`.
+
+Jeśli już taki jest w bazie, nic nie zmieniamy.
+
+Jeśli każdy reżyser ma opis, w panelu admina dodajemy albo edytujemy jednego reżysera i zostawiamy `about` puste.
+
+---
+
 ## Zadanie opcjonalne 2
 
-W `director_list.html` pokaż opis reżysera, ale tylko wtedy, gdy pole `about` nie jest puste.
+W `director_list.html` pokaż opis reżysera z etykietą:
+
+```text
+Opis:
+```
+
+Cały fragment `Opis: ...` ma pojawić się dopiero wtedy, gdy pole `about` nie jest puste.
 
 ---
 
@@ -543,8 +624,53 @@ Wewnątrz pętli po reżyserach można użyć:
 
 ```django
 {% if director.about %}
-  <p>{{ director.about }}</p>
+  <p>Opis: {{ director.about }}</p>
 {% endif %}
 ```
 
-Warunek chroni przed pustym akapitem przy reżyserach bez opisu.
+Warunek chroni przed pustym akapitem `Opis:` przy reżyserach bez opisu.
+
+---
+
+## Zadanie opcjonalne 3
+
+W widoku klasowym `MovieListView` posortuj filmy alfabetycznie po tytule.
+
+Podpowiedź: `ListView` może mieć ustawienie `ordering`.
+
+---
+
+## Rozwiązanie 3
+
+W `movies/views.py` dopisujemy jedną linię w klasie `MovieListView`:
+
+```python
+class MovieListView(ListView):
+    model = Movie
+    template_name = "movie_list_v2.html"
+    ordering = ["title"]
+```
+
+To zmienia kolejność filmów tylko w widoku `/filmy-v2/`.
+
+---
+
+## Zadanie opcjonalne 4
+
+W `movie_list_v2.html` pokaż przy każdym filmie liczbę jego recenzji.
+
+Podpowiedź: w modelu `Review` użyliśmy `related_name="reviews"`.
+
+---
+
+## Rozwiązanie 4
+
+Wewnątrz pętli po filmach można dopisać:
+
+```django
+<br>Recenzji: {{ movie.reviews.count }}
+```
+
+`movie.reviews` przechodzi od filmu do jego recenzji.
+
+`count` liczy, ile takich recenzji jest w bazie.

@@ -187,7 +187,9 @@ Za chwilę rozłożymy najważniejsze linie tego szablonu.
 
 `{% if ... %}` ukrywa puste informacje.
 
-`{% empty %}` wykona się, gdy `for` nie ma żadnego filmu do pokazania.
+`{% empty %}` to część pętli `{% for ... %}` w szablonach Django.
+
+Działa jak "w przeciwnym razie" dla pętli: wykona się tylko wtedy, gdy lista filmów jest pusta i `for` nie ma żadnego elementu do pokazania.
 
 ---
 
@@ -644,6 +646,10 @@ Dopisujemy tylko fragment z reżyserem, np. pod tytułem filmu:
   <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
 {% endif %}
 ```
+
+`movie.director` przechodzi od filmu do powiązanego reżysera.
+
+`movie.director.first_name` pobiera imię tego reżysera.
 
 ---
 

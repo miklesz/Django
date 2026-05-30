@@ -548,7 +548,29 @@ Django poprosi nas kolejno o:
 * adres e-mail,
 * hasło.
 
+W standardowym Django unikalna musi być nazwa użytkownika.
+
+Adres e-mail nie musi być inny dla każdego użytkownika.
+
 Po zakończeniu będziemy mogli zalogować się do panelu admina.
+
+---
+
+## Jeśli zapomnimy hasła
+
+Starego hasła nie da się podejrzeć.
+
+Dla istniejącego użytkownika ustawiamy nowe hasło:
+
+```bash
+python manage.py changepassword NAZWA_UZYTKOWNIKA
+```
+
+Jeśli nie pamiętamy też nazwy użytkownika, na potrzeby kursu najprościej utworzyć nowego superusera:
+
+```bash
+python manage.py createsuperuser
+```
 
 ---
 

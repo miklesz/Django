@@ -197,11 +197,21 @@ Wchodzimy na:
 
 [http://127.0.0.1:8000/accounts/login/](http://127.0.0.1:8000/accounts/login/)
 
-Jeśli nie pamiętamy hasła:
+Jeśli nie pamiętamy hasła, ustawiamy nowe:
 
 ```bash
 python manage.py changepassword NAZWA_UZYTKOWNIKA
 ```
+
+Starego hasła nie da się podejrzeć.
+
+Jeśli nie pamiętamy nazwy użytkownika, na potrzeby kursu można utworzyć nowego superusera:
+
+```bash
+python manage.py createsuperuser
+```
+
+Nazwa użytkownika musi być nowa, ale e-mail nie musi być unikalny.
 
 ---
 

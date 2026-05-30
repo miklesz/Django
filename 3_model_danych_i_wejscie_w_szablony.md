@@ -54,6 +54,22 @@ Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `pyth
 
 ---
 
+## Uwaga na kopiowanie kodu
+
+Jeśli po uruchomieniu Pythona pojawi się błąd:
+
+```text
+SyntaxError: invalid non-printable character U+00A0
+```
+
+to w pliku jest niewidoczna twarda spacja.
+
+Najczęściej pojawia się po kopiowaniu kodu ze slajdów albo komunikatora.
+
+Rozwiązanie: usuń okolice tego miejsca i wpisz spacje ręcznie z klawiatury.
+
+---
+
 ## Uruchomienie serwera
 
 Żeby sprawdzić stronę w przeglądarce, uruchamiamy serwer:
@@ -92,11 +108,27 @@ Sprawdź wynik w dwóch sytuacjach:
 2. Logujemy się do panelu admina.
 3. Wróć na `/hello/` i odśwież stronę.
 
-Jeśli ktoś nie pamięta hasła:
+---
+
+## Jeśli nie pamiętamy loginu lub hasła
+
+Jeśli ktoś nie pamięta hasła, nie odczytujemy starego hasła.
+
+Ustawiamy nowe:
 
 ```bash
 python manage.py changepassword NAZWA_UZYTKOWNIKA
 ```
+
+Jeśli nie pamiętamy nazwy użytkownika, na potrzeby kursu można utworzyć nowego superusera:
+
+```bash
+python manage.py createsuperuser
+```
+
+Nazwa użytkownika musi być nowa.
+
+Adres e-mail w standardowym Django nie musi być unikalny.
 
 ---
 
@@ -397,11 +429,27 @@ python manage.py runserver
 
 [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
-Jeśli ktoś nie pamięta hasła superusera, można je zmienić w terminalu:
+---
+
+## Jeśli nie działa logowanie do admina
+
+Jeśli ktoś nie pamięta hasła superusera, ustawiamy nowe w terminalu:
 
 ```bash
 python manage.py changepassword NAZWA_UZYTKOWNIKA
 ```
+
+Jeśli nie pamiętamy nazwy użytkownika, tworzymy nowego superusera:
+
+```bash
+python manage.py createsuperuser
+```
+
+Nazwa użytkownika musi być nowa, ale e-mail nie musi być unikalny.
+
+---
+
+## Dane testowe do dalszej pracy
 
 Dodajmy kilka filmów, żeby mieć dane do dalszej pracy. Wystarczą 2-3 rekordy z tytułem, krótkim opisem i datą premiery.
 
