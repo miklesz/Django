@@ -35,7 +35,7 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy już poleceń typu `python manage.py runserver` oraz `python -m pip install Django`.
+Po aktywacji możemy używać poleceń Django, np. uruchamiania serwera i instalowania pakietów.
 
 ---
 
@@ -630,7 +630,7 @@ A jeśli zalogujemy się przez panel admina, zamiast `AnonymousUser` pojawi się
 
 ## Kontekst w szablonach HTML
 
-Za pomocą `{{ zmienna }}` możemy wypisywać dane dostępne w kontekście szablonu.
+Za pomocą podwójnych klamr możemy wypisywać dane dostępne w kontekście szablonu.
 
 Można myśleć o kontekście jak o słowniku: pod każdym kluczem kryje się jakaś wartość, którą szablon potrafi wyświetlić.
 

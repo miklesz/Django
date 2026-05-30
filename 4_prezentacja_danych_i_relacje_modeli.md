@@ -33,7 +33,7 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy już poleceń typu `python manage.py runserver`.
+Po aktywacji możemy używać poleceń Django, np. uruchamiania serwera.
 
 ---
 
@@ -143,7 +143,7 @@ Wracamy do tego samego pliku:
 nano movies/templates/movie_list.html
 ```
 
-Zastępujemy testowe `{{ movies }}` pełnym szablonem.
+Zastępujemy testowe wypisanie zmiennej `movies` pełnym szablonem.
 
 ```django
 {% extends "base.html" %}
@@ -177,17 +177,17 @@ Za chwilę rozłożymy najważniejsze linie tego szablonu.
 
 ## Co robi ten szablon?
 
-`{% extends "base.html" %}` używa wspólnego układu strony.
+Tag `extends` używa wspólnego układu strony.
 
-`{% block content %}` wskazuje miejsce na treść tej strony.
+Blok `content` wskazuje miejsce na treść tej strony.
 
-`{% for movie in movies %}` przechodzi po filmach z widoku.
+Pętla `for` przechodzi po filmach z widoku.
 
-`{{ movie.title }}` i podobne zapisy pobierają pola filmu.
+Zapisy takie jak `movie.title` pobierają pola filmu.
 
-`{% if ... %}` ukrywa puste informacje.
+Warunek `if` ukrywa puste informacje.
 
-`{% empty %}` to część pętli `{% for ... %}` w szablonach Django.
+`empty` to część pętli `for` w szablonach Django.
 
 Działa jak "w przeciwnym razie" dla pętli: wykona się tylko wtedy, gdy lista filmów jest pusta i `for` nie ma żadnego elementu do pokazania.
 
@@ -305,7 +305,7 @@ Na kolejnych slajdach wyjaśnimy nowe elementy tego modelu.
 
 Pola, np. `first_name`, zapisują dane reżysera.
 
-`class Meta` nie zapisuje danych. Ustawia np. sortowanie i nazwy w panelu admina.
+Klasa `Meta` nie zapisuje danych. Ustawia np. sortowanie i nazwy w panelu admina.
 
 `ordering` określa domyślne sortowanie reżyserów.
 
@@ -637,7 +637,7 @@ Otwieramy szablon listy filmów:
 nano movies/templates/movie_list.html
 ```
 
-Nie usuwamy daty premiery, opisu ani `{% empty %}`.
+Nie usuwamy daty premiery, opisu ani części `empty`.
 
 Dopisujemy tylko fragment z reżyserem, np. pod tytułem filmu:
 
@@ -725,7 +725,7 @@ W `movies/templates/movie_list.html` może wyglądać tak:
 {% endif %}
 ```
 
-`{% else %}` działa wtedy, gdy warunek z `if` nie jest spełniony.
+`else` działa wtedy, gdy warunek z `if` nie jest spełniony.
 
 ---
 

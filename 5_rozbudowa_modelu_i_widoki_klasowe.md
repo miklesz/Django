@@ -32,7 +32,7 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy poleceń typu `python manage.py runserver`.
+Po aktywacji możemy używać poleceń Django, np. uruchamiania serwera.
 
 ---
 
@@ -147,7 +147,7 @@ W bazie zapisze się liczba, np. `5`.
 
 ## Co nowego w `Review`? - ustawienia
 
-`ordering = ["-created_at"]` ustawia domyślną kolejność recenzji.
+Ustawienie `ordering` z wartością `["-created_at"]` określa domyślną kolejność recenzji.
 
 Minus przed `created_at` oznacza sortowanie malejące, czyli najnowsze recenzje jako pierwsze.
 
@@ -296,9 +296,9 @@ Na kolejnym slajdzie wyjaśnimy, co Django zrobi za nas.
 
 ## Co robi `MovieListView`?
 
-`model = Movie` mówi, że widok pracuje na filmach.
+Atrybut `model` z wartością `Movie` mówi, że widok pracuje na filmach.
 
-`template_name = "movie_list_v2.html"` mówi, którego szablonu użyć.
+Atrybut `template_name` mówi, którego szablonu użyć.
 
 Nie piszemy tutaj `Movie.objects.all()`.
 
@@ -385,7 +385,7 @@ W widoku klasowym lista obiektów jest dostępna jako `object_list`.
 
 Nowością jest `object_list`, czyli lista przekazana automatycznie przez `ListView`.
 
-`{% for movie in object_list %}` przechodzi po filmach.
+Pętla `for` przechodzi po filmach z `object_list`.
 
 `movie.director.first_name` to znany już mechanizm przechodzenia po relacji z filmu do reżysera.
 
@@ -481,7 +481,7 @@ nano movies/templates/director_list.html
 
 Mechanizm jest taki sam jak przy filmach.
 
-`object_list` zawiera teraz reżyserów, bo `DirectorListView` ma `model = Director`.
+`object_list` zawiera teraz reżyserów, bo `DirectorListView` pracuje na modelu `Director`.
 
 `director` to pojedynczy reżyser z pętli.
 
@@ -614,7 +614,7 @@ W `director_list.html` pokaż opis reżysera z etykietą:
 Opis:
 ```
 
-Cały fragment `Opis: ...` ma pojawić się dopiero wtedy, gdy pole `about` nie jest puste.
+Cały fragment zaczynający się od `Opis:` ma pojawić się dopiero wtedy, gdy pole `about` nie jest puste.
 
 ---
 

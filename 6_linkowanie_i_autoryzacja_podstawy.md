@@ -7,6 +7,7 @@
 * Szablony szczegółów filmu i reżysera
 * Linki między filmami, reżyserami i recenzjami
 * Typowe błędy przy linkowaniu
+* Zadania opcjonalne
 
 ---
 
@@ -32,7 +33,7 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy poleceń typu `python manage.py runserver`.
+Po aktywacji możemy używać poleceń Django, np. uruchamiania serwera.
 
 ---
 
@@ -75,6 +76,10 @@ Do importu widoków klasowych dodajemy `DetailView`.
 from django.views.generic import DetailView, ListView
 ```
 
+Nie kończymy jeszcze edycji tego pliku.
+
+Za chwilę w tym samym `movies/views.py` dopiszemy klasy szczegółów.
+
 ---
 
 ## Widoki szczegółów
@@ -102,13 +107,13 @@ Na kolejnym slajdzie wyjaśnimy, skąd widok wie, który obiekt pokazać.
 
 Najczęściej przekazujemy go w adresie jako `pk`, czyli primary key.
 
-Przykłady:
+Przykładowe adresy:
 
-```text
-/film/1/
-/film/2/
-/rezyser/3/
-```
+| Adres |
+|---|
+| `/film/1/` |
+| `/film/2/` |
+| `/rezyser/3/` |
 
 Liczba w adresie mówi, który rekord z bazy ma zostać pokazany.
 
@@ -129,13 +134,15 @@ path("film/<int:pk>/", views.MovieDetailView.as_view(), name="movie-detail"),
 path("rezyser/<int:pk>/", views.DirectorDetailView.as_view(), name="director-detail"),
 ```
 
+Na następnym slajdzie wyjaśnimy, co oznacza fragment `<int:pk>`.
+
 ---
 
 ## Co oznacza `<int:pk>`?
 
 `<int:pk>` to zmienna część adresu URL.
 
-`int` oznacza, że Django oczekuje liczby.
+`int` oznacza, że Django oczekuje liczby całkowitej.
 
 `pk` to nazwa parametru przekazana do widoku.
 
@@ -145,15 +152,23 @@ Dla adresu `/film/5/` widok dostanie `pk=5` i spróbuje znaleźć film o takim I
 
 ## Co oznacza `name="movie-detail"`?
 
+W ćwiczeniu 5 widzieliśmy już `name="movie-list-v2"`.
+
+Tutaj działa ten sam mechanizm.
+
 `name` nadaje ścieżce nazwę.
 
 Dzięki temu w szablonie nie wpisujemy adresu ręcznie.
 
-Zamiast pisać `/film/5/`, możemy użyć:
+---
 
-```django
-{% url 'movie-detail' movie.id %}
-```
+## Przykład użycia `name`
+
+Zamiast pisać adres ręcznie, używamy nazwy trasy.
+
+| Ręcznie wpisany adres | Odwołanie przez nazwę |
+|---|---|
+| `/film/5/` | nazwa: `movie-detail`, argument: `movie.id` |
 
 Jeśli później zmienimy adres, szablony nadal mogą działać.
 
@@ -198,6 +213,20 @@ W `DetailView` pojedynczy obiekt jest dostępny jako `object`.
 {% endblock %}
 ```
 
+Nowe: `object` i tag `url`. Wyjaśnienie za chwilę.
+
+---
+
+## Co nowego w `movie_detail.html`?
+
+`object` to film znaleziony przez `DetailView`.
+
+`object.director` przechodzi od filmu do reżysera.
+
+Tag `url` buduje adres do szczegółów reżysera.
+
+ID reżysera przekazujemy jako argument adresu.
+
 ---
 
 ## Szablon szczegółów reżysera
@@ -239,23 +268,43 @@ Pokażemy dane reżysera oraz filmy powiązane przez `related_name="movies"`.
 {% endblock %}
 ```
 
+Nowe: `object.photo.url` oraz `object.movies.all`. Wyjaśnienie za chwilę.
+
+---
+
+## Co oznacza `object.photo.url`?
+
+`object` to reżyser znaleziony przez `DetailView`.
+
+`object.photo` to plik zdjęcia z pola `ImageField`.
+
+`object.photo.url` to adres zdjęcia dla przeglądarki.
+
+`alt` dostaje tekstową nazwę reżysera.
+
 ---
 
 ## Co oznacza `object.movies.all`?
 
-W modelu `Movie` mamy:
+Jesteśmy w szablonie szczegółów reżysera.
 
-```python
-related_name="movies"
-```
+Tutaj `object` oznacza aktualnego reżysera.
 
-Dzięki temu z poziomu reżysera możemy przejść do jego filmów:
+Każdy film ma pole `director`, czyli wskazuje swojego reżysera.
 
-```django
-object.movies.all
-```
+`related_name="movies"` daje przejście w drugą stronę: od reżysera do jego filmów.
 
-To jest lista filmów przypisanych do danego reżysera.
+---
+
+## Rozbijamy `object.movies.all`
+
+| Fragment | Znaczenie |
+|---|---|
+| `object` | aktualny reżyser |
+| `movies` | filmy tego reżysera |
+| `all` | pobierz wszystkie |
+
+Całość oznacza: wszystkie filmy przypisane do aktualnego reżysera.
 
 ---
 
@@ -291,7 +340,13 @@ Zmienimy tytuł filmu na link do szczegółów.
 
 ## Link do filmu
 
-Wewnątrz pętli po filmach zamiast samego tytułu możemy użyć:
+W `movie_list_v2.html` szukamy w pętli po filmach:
+
+```django
+<strong>{{ movie.title }}</strong>
+```
+
+Zastępujemy ten fragment linkiem:
 
 ```django
 <a href="{% url 'movie-detail' movie.id %}">
@@ -299,11 +354,31 @@ Wewnątrz pętli po filmach zamiast samego tytułu możemy użyć:
 </a>
 ```
 
-Jeśli pokazujemy też reżysera, link do reżysera robimy tylko wtedy, gdy `movie.director` istnieje.
+Tag `url` buduje adres z nazwy `movie-detail` i ID filmu.
 
 ---
 
-## Link do reżysera
+## Link do reżysera - kiedy?
+
+Link do reżysera robimy tylko wtedy, gdy `movie.director` istnieje.
+
+---
+
+## Link do reżysera - co zastępujemy
+
+W `movie_list_v2.html` szukamy tego fragmentu:
+
+```django
+{% if movie.director %}
+  <br>Reżyser: {{ movie.director.first_name }} {{ movie.director.last_name }}
+{% endif %}
+```
+
+Zastąpimy go wersją z linkiem i obsługą braku reżysera.
+
+---
+
+## Link do reżysera - nowy kod
 
 ```django
 {% if movie.director %}
@@ -333,7 +408,7 @@ Wtedy taki kod może wywołać błąd:
 
 Django nie umie zbudować adresu bez ID reżysera.
 
-Dlatego link do reżysera otaczamy warunkiem `{% if movie.director %}`.
+Dlatego link do reżysera otaczamy warunkiem sprawdzającym `movie.director`.
 
 ---
 
@@ -351,13 +426,25 @@ Zmienimy tytuł filmu na link do szczegółów filmu.
 
 ## `review_list.html` z linkiem
 
-Wewnątrz pętli po recenzjach:
+W `review_list.html` szukamy w pętli po recenzjach:
+
+```django
+{{ review.movie.title }}: {{ review.text }}
+```
+
+Zastępujemy sam tytuł filmu linkiem:
 
 ```django
 <a href="{% url 'movie-detail' review.movie.id %}">
   {{ review.movie.title }}
 </a>
 ```
+
+To ten sam mechanizm linkowania, tylko ID bierzemy z filmu powiązanego z recenzją.
+
+---
+
+## Link w recenzji - bez `if`
 
 Tutaj nie potrzebujemy `if`, bo recenzja musi mieć przypisany film.
 
@@ -423,3 +510,25 @@ W `movie_detail.html` można dopisać:
 ```
 
 Używamy nazwy `movie-list-v2`, którą nadaliśmy ścieżce w `urls.py`.
+
+---
+
+## Zadanie opcjonalne 3
+
+Dodaj link powrotny ze szczegółów reżysera do listy reżyserów.
+
+Nie wpisuj ręcznie adresu `/rezyserzy/`.
+
+Użyj nazwy ścieżki z `urls.py`.
+
+---
+
+## Rozwiązanie 3
+
+W `director_detail.html` można dopisać:
+
+```django
+<p><a href="{% url 'director-list' %}">Wróć do listy reżyserów</a></p>
+```
+
+Używamy nazwy `director-list`, którą nadaliśmy ścieżce w `urls.py`.

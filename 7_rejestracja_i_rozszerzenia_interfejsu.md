@@ -32,7 +32,7 @@ source .venv/bin/activate
 .\.venv\Scripts\Activate.ps1
 ```
 
-Po aktywacji używamy poleceń typu `python manage.py runserver`.
+Po aktywacji możemy używać poleceń Django, np. uruchamiania serwera.
 
 ---
 
@@ -177,7 +177,7 @@ Django szuka szablonu logowania właśnie pod nazwą `registration/login.html`.
 
 ## Token CSRF
 
-`{% csrf_token %}` jest wymagany w formularzach wysyłanych metodą POST.
+Tag `csrf_token` jest wymagany w formularzach wysyłanych metodą POST.
 
 Chroni przed atakiem CSRF, czyli podszyciem się pod formularz z innej strony.
 
@@ -570,7 +570,7 @@ Dodamy informację o użytkowniku oraz logowanie i wylogowanie.
 {% endif %}
 ```
 
-Ten fragment najlepiej umieścić przed `{% block content %}`.
+Ten fragment najlepiej umieścić przed blokiem `content`.
 
 ---
 
@@ -586,7 +586,7 @@ Dlatego przy wylogowaniu używamy:
 <form method="post" action="{% url 'logout' %}">
 ```
 
-i dodajemy `{% csrf_token %}`.
+i dodajemy tag `csrf_token`.
 
 ---
 
