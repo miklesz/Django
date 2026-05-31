@@ -31,6 +31,5 @@ Pliki `.md` każdej lekcji znajdują się w głównym katalogu repozytorium:
 - `3_model_danych_i_wejscie_w_szablony.md`
 - `4_prezentacja_danych_i_relacje_modeli.md`
 - `5_rozbudowa_modelu_i_widoki_klasowe.md`
-- `6_linkowanie_i_autoryzacja_podstawy.md`
+- `6_linkowanie_i_widoki_szczegolow.md`
 - `7_rejestracja_i_rozszerzenia_interfejsu.md`
-
