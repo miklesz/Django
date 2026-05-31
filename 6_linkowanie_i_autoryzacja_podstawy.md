@@ -160,17 +160,33 @@ Tutaj działa ten sam mechanizm.
 
 Dzięki temu w szablonie nie wpisujemy adresu ręcznie.
 
+Nazwa nie pojawia się w przeglądarce.
+
+To etykieta, której Django używa do znalezienia odpowiedniej ścieżki.
+
 ---
 
 ## Przykład użycia `name`
 
-Zamiast pisać adres ręcznie, używamy nazwy trasy.
+W `urls.py`:
 
-| Ręcznie wpisany adres | Odwołanie przez nazwę |
-|---|---|
-| `/film/5/` | nazwa: `movie-detail`, argument: `movie.id` |
+```python
+path("film/<int:pk>/", views.MovieDetailView.as_view(), name="movie-detail"),
+```
 
-Jeśli później zmienimy adres, szablony nadal mogą działać.
+W szablonie:
+
+```django
+{% url 'movie-detail' movie.id %}
+```
+
+Django zbuduje adres, np.:
+
+```text
+/film/5/
+```
+
+`movie.id` trafia w miejsce `<int:pk>`.
 
 ---
 
@@ -280,7 +296,7 @@ Nowe: `object.photo.url` oraz `object.movies.all`. Wyjaśnienie za chwilę.
 
 `object.photo.url` to adres zdjęcia dla przeglądarki.
 
-`alt` dostaje tekstową nazwę reżysera.
+Atrybut `alt` zawiera tekstowy opis obrazka, tutaj: imię i nazwisko reżysera.
 
 ---
 
@@ -468,13 +484,75 @@ Jeśli pojawia się `NoReverseMatch`, sprawdzamy warunki przy pustych relacjach.
 
 ## Zadanie opcjonalne 1
 
+Dodaj link powrotny ze szczegółów filmu do listy filmów.
+
+To najprostszy przypadek: nazwa ścieżki jest podana i nie przekazujemy żadnego ID.
+
+| Co | Wartość |
+|---|---|
+| szablon | `movie_detail.html` |
+| adres w przeglądarce | `/filmy-v2/` |
+| nazwa w `urls.py` | `movie-list-v2` |
+
+W szablonie użyj nazwy, nie adresu.
+
+---
+
+## Rozwiązanie 1
+
+W `movie_detail.html` można dopisać:
+
+```django
+<p><a href="{% url 'movie-list-v2' %}">Wróć do listy filmów</a></p>
+```
+
+`movie-list-v2` to nazwa ścieżki.
+
+Django zamieni ją na adres `/filmy-v2/`.
+
+---
+
+## Zadanie opcjonalne 2
+
+Dodaj link powrotny ze szczegółów reżysera do listy reżyserów.
+
+Tym razem nazwę ścieżki trzeba odnaleźć w `urls.py`.
+
+| Co | Wartość |
+|---|---|
+| szablon | `director_detail.html` |
+| adres w przeglądarce | `/rezyserzy/` |
+| nazwa w `urls.py` | odszukaj samodzielnie |
+
+W szablonie użyj nazwy, nie adresu.
+
+---
+
+## Rozwiązanie 2
+
+W `director_detail.html` można dopisać:
+
+```django
+<p><a href="{% url 'director-list' %}">Wróć do listy reżyserów</a></p>
+```
+
+`director-list` to nazwa ścieżki.
+
+Django zamieni ją na adres `/rezyserzy/`.
+
+---
+
+## Zadanie opcjonalne 3
+
 Na stronie szczegółów filmu pokaż recenzje tego filmu.
+
+To zadanie korzysta z relacji odwrotnej: od filmu przechodzimy do jego recenzji.
 
 Podpowiedź: w modelu `Review` użyliśmy `related_name="reviews"`.
 
 ---
 
-## Rozwiązanie 1
+## Rozwiązanie 3
 
 W `movie_detail.html` można dopisać:
 
@@ -493,42 +571,28 @@ W `movie_detail.html` można dopisać:
 
 ---
 
-## Zadanie opcjonalne 2
+## Zadanie opcjonalne 4
 
-Dodaj link powrotny ze szczegółów filmu do listy filmów.
+Na liście recenzji dodaj link do reżysera filmu.
 
-Adres listy to `/filmy-v2/`.
+To bardziej złożone zadanie, bo trzeba przejść przez relację:
+
+`review` -> `movie` -> `director`
+
+Pamiętaj o warunku `if`, bo film może nie mieć przypisanego reżysera.
 
 ---
 
-## Rozwiązanie 2
+## Rozwiązanie 4
 
-W `movie_detail.html` można dopisać:
+W `review_list.html` można dopisać przy recenzji:
 
 ```django
-<p><a href="{% url 'movie-list-v2' %}">Wróć do listy filmów</a></p>
+{% if review.movie.director %}
+  <br>
+  Reżyser:
+  <a href="{% url 'director-detail' review.movie.director.id %}">
+    {{ review.movie.director.first_name }} {{ review.movie.director.last_name }}
+  </a>
+{% endif %}
 ```
-
-Używamy nazwy `movie-list-v2`, którą nadaliśmy ścieżce w `urls.py`.
-
----
-
-## Zadanie opcjonalne 3
-
-Dodaj link powrotny ze szczegółów reżysera do listy reżyserów.
-
-Nie wpisuj ręcznie adresu `/rezyserzy/`.
-
-Użyj nazwy ścieżki z `urls.py`.
-
----
-
-## Rozwiązanie 3
-
-W `director_detail.html` można dopisać:
-
-```django
-<p><a href="{% url 'director-list' %}">Wróć do listy reżyserów</a></p>
-```
-
-Używamy nazwy `director-list`, którą nadaliśmy ścieżce w `urls.py`.
