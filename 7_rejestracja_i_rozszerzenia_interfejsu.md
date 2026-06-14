@@ -112,7 +112,7 @@ nano goodmovies/urls.py
 
 ---
 
-## `include("django.contrib.auth.urls")`
+## Podłączenie URL-i auth
 
 Na górze pliku importujemy `include`:
 
@@ -168,10 +168,15 @@ Django szuka szablonu logowania właśnie pod nazwą `registration/login.html`.
     {{ form.as_p }}
     <button type="submit">Zaloguj się</button>
   </form>
-
-  <p><a href="{% url 'signup' %}">Zarejestruj się</a></p>
 {% endblock %}
 ```
+
+Za chwilę wyjaśnimy:
+
+- skąd bierze się zmienna `form`,
+- po co jest `{% csrf_token %}`,
+- co robi `form.as_p`,
+- dlaczego link do rejestracji dodamy dopiero później.
 
 ---
 
@@ -197,7 +202,19 @@ Wchodzimy na:
 
 [http://127.0.0.1:8000/accounts/login/](http://127.0.0.1:8000/accounts/login/)
 
-Jeśli nie pamiętamy hasła, ustawiamy nowe:
+Na tym etapie sprawdzamy, czy formularz logowania się wyświetla.
+
+Nie musimy jeszcze kończyć logowania.
+
+Pełny test zrobimy po utworzeniu strony profilu.
+
+Jeśli ktoś zaloguje się teraz i zobaczy `404` na `/accounts/profile/`, to jest spodziewane.
+
+---
+
+## Gdy nie pamiętamy hasła
+
+Jeśli znamy nazwę użytkownika, ustawiamy nowe hasło:
 
 ```bash
 python manage.py changepassword NAZWA_UZYTKOWNIKA
@@ -205,7 +222,7 @@ python manage.py changepassword NAZWA_UZYTKOWNIKA
 
 Starego hasła nie da się podejrzeć.
 
-Jeśli nie pamiętamy nazwy użytkownika, na potrzeby kursu można utworzyć nowego superusera:
+Jeśli nie pamiętamy nazwy użytkownika, na potrzeby kursu tworzymy nowego superusera:
 
 ```bash
 python manage.py createsuperuser
@@ -239,6 +256,28 @@ Dodajemy import:
 from django.contrib.auth.decorators import login_required
 ```
 
+Za chwilę wyjaśnimy, czym są dekoratory w Pythonie i po co przy widoku pojawi się znak `@`.
+
+---
+
+## Czym jest dekorator?
+
+Dekorator to sposób Pythona na dodanie zachowania do funkcji.
+
+Zapis z `@` stawiamy nad funkcją:
+
+```python
+@login_required
+def profile_view(request):
+    ...
+```
+
+Czytamy to praktycznie tak:
+
+```text
+zanim uruchomisz ten widok, sprawdź logowanie użytkownika
+```
+
 ---
 
 ## Widok profilu
@@ -253,13 +292,21 @@ def profile_view(request):
 
 `@login_required` oznacza, że strona jest dostępna tylko po zalogowaniu.
 
-Niezalogowany użytkownik zostanie przekierowany do logowania.
+Jeśli użytkownik nie jest zalogowany, Django nie uruchomi widoku od razu.
+
+Najpierw przekieruje go do logowania.
 
 ---
 
 ## URL profilu
 
-W `goodmovies/urls.py` dodajemy:
+Otwieramy `goodmovies/urls.py`:
+
+```bash
+nano goodmovies/urls.py
+```
+
+Dodajemy:
 
 ```python
 path("accounts/profile/", views.profile_view, name="user-profile"),
@@ -300,6 +347,22 @@ Django udostępnia aktualnego użytkownika jako `request.user`.
 ```
 
 Wylogowanie robimy formularzem POST, nie zwykłym linkiem.
+
+Na kolejnym slajdzie rozbijemy ten szablon na najważniejsze elementy.
+
+---
+
+## Co robi `profile.html`?
+
+`request.user` to aktualnie zalogowany użytkownik.
+
+`request.user.username` pokazuje jego nazwę.
+
+`request.user.last_login` pokazuje ostatnie logowanie.
+
+`{% url 'logout' %}` wyznacza adres widoku wylogowania.
+
+Formularz wylogowania musi mieć `method="post"` i `{% csrf_token %}`.
 
 ---
 
@@ -351,7 +414,13 @@ Na kolejnych slajdach dodamy URL, widok i szablony.
 
 ## URL rejestracji
 
-W `goodmovies/urls.py` dodajemy ścieżkę:
+Otwieramy `goodmovies/urls.py`:
+
+```bash
+nano goodmovies/urls.py
+```
+
+Dodajemy ścieżkę:
 
 ```python
 path("accounts/signup/", views.user_signup, name="signup"),
@@ -444,6 +513,22 @@ nano movies/templates/registration/signup.html
 {% endblock %}
 ```
 
+Na kolejnym slajdzie wyjaśnimy, co jest tu takie samo jak w logowaniu, a co jest nowe.
+
+---
+
+## Co robi `signup.html`?
+
+Mechanika formularza jest taka sama jak przy logowaniu:
+
+- `method="post"` wysyła dane formularza,
+- `{% csrf_token %}` chroni wysłanie formularza,
+- `{{ form.as_p }}` pokazuje pola formularza.
+
+Nowe jest to, że ten formularz tworzy konto użytkownika.
+
+Link `{% url 'login' %}` prowadzi osoby z istniejącym kontem do logowania.
+
 ---
 
 ## Szablon po rejestracji
@@ -470,6 +555,24 @@ Ten szablon pokażemy po poprawnym utworzeniu konta.
   <p><a href="{% url 'login' %}">Przejdź do logowania</a></p>
 {% endblock %}
 ```
+
+Na kolejnym slajdzie wyjaśnimy, kiedy Django pokazuje ten szablon.
+
+---
+
+## Co robi `signup_complete.html`?
+
+Ten szablon pojawia się po poprawnym utworzeniu konta.
+
+Wracamy do niego z widoku `user_signup` po:
+
+```python
+form.save()
+```
+
+Użytkownik nie jest jeszcze automatycznie zalogowany.
+
+Dlatego pokazujemy link do strony logowania.
 
 ---
 
@@ -516,13 +619,43 @@ nano movies/templates/registration/logged_out.html
 {% endblock %}
 ```
 
+Na kolejnym slajdzie wyjaśnimy, kiedy Django używa tego szablonu.
+
+---
+
+## Co robi `logged_out.html`?
+
+Ten szablon pokazuje się po poprawnym wylogowaniu.
+
+Korzysta z niego wbudowany widok `logout`.
+
+Tekst potwierdza, że sesja użytkownika została zakończona.
+
+Link `{% url 'login' %}` pozwala od razu zalogować się ponownie.
+
 ---
 
 ## Jeśli szablon się nie podmienia
 
-Jeśli Django nie używa naszego `logged_out.html`, sprawdzamy kolejność aplikacji w `INSTALLED_APPS`.
+To slajd awaryjny.
 
-Najprościej dać `movies` przed aplikacjami Django:
+Objaw: po wylogowaniu widzimy inną stronę niż nasz `logged_out.html`.
+
+Przyczyna: Django mogło wcześniej znaleźć szablon z aplikacji Django.
+
+Django szuka szablonów zgodnie z kolejnością aplikacji w `INSTALLED_APPS`.
+
+---
+
+## Pierwszeństwo szablonów
+
+Otwieramy `goodmovies/settings.py`:
+
+```bash
+nano goodmovies/settings.py
+```
+
+W `INSTALLED_APPS` dajemy `movies` przed aplikacjami Django:
 
 ```python
 INSTALLED_APPS = [
@@ -572,13 +705,31 @@ Dodamy informację o użytkowniku oraz logowanie i wylogowanie.
 
 Ten fragment najlepiej umieścić przed blokiem `content`.
 
+Na kolejnym slajdzie wyjaśnimy, co jest tu nowe.
+
+---
+
+## Co robi fragment w `base.html`?
+
+`base.html` działa na wielu stronach, więc to dobre miejsce na nawigację użytkownika.
+
+`request.user.is_authenticated` sprawdza, czy użytkownik jest zalogowany.
+
+Jeśli jest zalogowany, pokazujemy jego nazwę i przycisk wylogowania.
+
+Jeśli nie jest zalogowany, pokazujemy linki do logowania i rejestracji.
+
 ---
 
 ## Dlaczego wylogowanie to formularz?
 
 Współczesne Django oczekuje wylogowania metodą POST.
 
-Zwykły link wysyła żądanie GET.
+Powód: wylogowanie zmienia stan aplikacji.
+
+Django usuwa dane sesji aktualnego użytkownika.
+
+Zwykły link wysyła żądanie GET, a GET powinien tylko pobierać stronę.
 
 Dlatego przy wylogowaniu używamy:
 
@@ -586,7 +737,7 @@ Dlatego przy wylogowaniu używamy:
 <form method="post" action="{% url 'logout' %}">
 ```
 
-i dodajemy tag `csrf_token`.
+i dodajemy tag `csrf_token`, żeby potwierdzić, że formularz pochodzi z naszej strony.
 
 ---
 
@@ -594,13 +745,12 @@ i dodajemy tag `csrf_token`.
 
 Ten sam dekorator możemy użyć przy dowolnym widoku funkcyjnym.
 
-Przykład:
+Schemat:
 
 ```python
 @login_required
-def first_movie(request):
-    movie = Movie.objects.first()
-    return render(request, "first_movie.html", {"movie": movie})
+def nazwa_widoku(request):
+    ...
 ```
 
 Taki widok będzie dostępny tylko po zalogowaniu.
@@ -611,13 +761,25 @@ Taki widok będzie dostępny tylko po zalogowaniu.
 
 Sprawdzamy po kolei:
 
-1. `/accounts/signup/` - rejestracja.
-2. `/accounts/login/` - logowanie.
-3. `/accounts/profile/` - profil.
+1. [http://127.0.0.1:8000/accounts/signup/](http://127.0.0.1:8000/accounts/signup/) - rejestracja.
+2. [http://127.0.0.1:8000/accounts/login/](http://127.0.0.1:8000/accounts/login/) - logowanie.
+3. [http://127.0.0.1:8000/accounts/profile/](http://127.0.0.1:8000/accounts/profile/) - profil.
 4. Przycisk wylogowania.
 5. Widok strony po wylogowaniu.
 
 Jeśli coś nie działa, zaczynamy od sprawdzenia `urls.py` i nazw szablonów.
+
+---
+
+## Koniec części obowiązkowej
+
+Jeśli te pięć punktów działa, główny cel ćwiczenia jest zrealizowany.
+
+---
+
+## Zadania opcjonalne
+
+Poniższe zadania rozwijają materiał z ćwiczenia.
 
 ---
 
@@ -631,7 +793,13 @@ Użyj nazwy URL `movie-list-v2`.
 
 ## Rozwiązanie 1
 
-W `profile.html` można dopisać:
+Otwieramy `profile.html`:
+
+```bash
+nano movies/templates/profile.html
+```
+
+Dopisujemy:
 
 ```django
 <p><a href="{% url 'movie-list-v2' %}">Przejdź do listy filmów</a></p>
@@ -639,28 +807,110 @@ W `profile.html` można dopisać:
 
 Dzięki nazwie URL nie wpisujemy ręcznie `/filmy-v2/`.
 
+Sprawdzamy:
+
+[http://127.0.0.1:8000/accounts/profile/](http://127.0.0.1:8000/accounts/profile/)
+
 ---
 
 ## Zadanie opcjonalne 2
 
-Zabezpiecz widok `first_movie` dekoratorem `@login_required`.
+Zabezpiecz widok `list_movies` dekoratorem `@login_required`.
 
-Jeśli nie masz tego widoku w projekcie, potraktuj zadanie jako przykład dla prowadzącego.
+Po zmianie lista pod adresem `/filmy/` będzie dostępna tylko po zalogowaniu.
 
 ---
 
 ## Rozwiązanie 2
 
-W `movies/views.py`:
+Otwieramy `movies/views.py`:
+
+```bash
+nano movies/views.py
+```
+
+Dopisujemy dekorator nad funkcją `list_movies`:
 
 ```python
 from django.contrib.auth.decorators import login_required
 
 
 @login_required
-def first_movie(request):
-    movie = Movie.objects.first()
-    return render(request, "first_movie.html", {"movie": movie})
+def list_movies(request):
+    movies = Movie.objects.all()
+    return render(request, "movie_list.html", {"movies": movies})
 ```
 
 Niezalogowany użytkownik zostanie przekierowany na `/accounts/login/`.
+
+Sprawdzamy:
+
+[http://127.0.0.1:8000/filmy/](http://127.0.0.1:8000/filmy/)
+
+---
+
+## Podsumowanie kursu
+
+W trakcie kursu zbudowaliśmy aplikację `goodmovies`.
+
+Po drodze pojawiły się:
+
+- projekt i aplikacja Django,
+- modele, migracje i baza SQLite,
+- panel administratora,
+- widoki funkcyjne i klasowe,
+- szablony HTML i dziedziczenie z `base.html`,
+- relacje między filmami, reżyserami i recenzjami,
+- linkowanie stron po nazwach URL,
+- logowanie, wylogowanie, profil i rejestracja użytkownika.
+
+---
+
+## Co warto zapamiętać
+
+W większości prostych zmian w Django wracamy do tej samej mapy:
+
+```text
+model -> widok -> szablon -> URL
+```
+
+Jeśli strona się nie otwiera, najpierw sprawdzamy:
+
+1. czy URL istnieje w `urls.py`,
+2. czy widok zwraca właściwy szablon,
+3. czy nazwa szablonu zgadza się z plikiem,
+4. czy dane są przekazane w kontekście.
+
+---
+
+## Co dalej
+
+Naturalne rozszerzenia tej aplikacji to:
+
+- formularz dodawania filmu przez stronę,
+- edycja i usuwanie filmów,
+- recenzje dodawane przez zalogowanych użytkowników,
+- uprawnienia, czyli kto może zmieniać dane,
+- proste testy widoków i modeli,
+- publikacja aplikacji poza komputerem lokalnym.
+
+---
+
+## Kontakt i materiały
+
+Materiały z kursu to pliki Markdown od `1_...md` do `7_...md`.
+
+Kod ćwiczeniowy jest w Waszych własnych katalogach projektowych.
+
+Kontakt:
+
+- [Mikołaj Leszczuk](mailto:mikolaj.leszczuk@agh.edu.pl)
+- [Agnieszka Rudnicka](mailto:rudnicka@agh.edu.pl)
+
+---
+
+## Dziękujemy
+
+Dziękujemy za udział w kursie.
+
+Macie już działający projekt Django i podstawy do dalszej samodzielnej pracy.
